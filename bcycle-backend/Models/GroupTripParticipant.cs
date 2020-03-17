@@ -5,11 +5,14 @@ using System.Threading.Tasks;
 
 namespace bcycle_backend.Models
 {
-    public class GroupPointParticipant
+    public class GroupTripParticipant
     {
         public int ID { get; set; }
         public bool IsApproved { get; set; } = false;
-        public GroupTrip GroupTrip{ get; set; }
+        public int GroupTripID { get; set; }
+        public int UserID { get; set; }
+
+        public GroupTrip GroupTrip { get; set; }
         public User User { get; set; }
     }
 }
