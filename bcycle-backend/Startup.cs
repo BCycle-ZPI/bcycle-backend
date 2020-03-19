@@ -28,6 +28,7 @@ namespace bcycle_backend
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+            services.AddSingleton(Configuration);
             // TODO: switch to SQL Server in production?
             services.AddDbContext<BCycleContext>(options =>
                 options.UseSqlite(Configuration.GetConnectionString("DefaultConnection")));
