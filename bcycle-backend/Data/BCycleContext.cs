@@ -73,5 +73,16 @@ namespace bcycle_backend.Data
             modelBuilder.Entity<TripPoint>().ToTable("TripPoint");
             modelBuilder.Entity<User>().ToTable("User");
         }
+
+        internal async Task<Trip> GetMyTrip(int id) {
+            int userID = (await UserDataHelper.GetCurrentUserID()).Value;
+            return await GetMyTrip(id, userID);
+        }
+
+        internal async Task<Trip> GetMyTrip(int id, int userID) {
+            return await Trips
+                .Where(t => t.UserID == userID && t.ID == id)
+                .FirstAsync();
+        }
     }
 }
