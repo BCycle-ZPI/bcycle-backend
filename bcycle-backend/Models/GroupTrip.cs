@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace bcycle_backend.Models
 {
-    public class GroupTrip {
+    public class GroupTrip
+    {
         public int ID { get; set; }
         public string Name { get; set; }
         public DateTime StartDate { get; set; }

@@ -85,8 +85,7 @@ namespace bcycle_backend.Migrations
                     Longitude = table.Column<float>(nullable: false),
                     Latitude = table.Column<float>(nullable: false),
                     Order = table.Column<int>(nullable: false),
-                    GroupTripID = table.Column<int>(nullable: false),
-                    GroupTripID1 = table.Column<int>(nullable: true)
+                    GroupTripID = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -97,12 +96,6 @@ namespace bcycle_backend.Migrations
                         principalTable: "GroupTrip",
                         principalColumn: "ID",
                         onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_GroupTripPoint_GroupTrip_GroupTripID1",
-                        column: x => x.GroupTripID1,
-                        principalTable: "GroupTrip",
-                        principalColumn: "ID",
-                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -111,13 +104,13 @@ namespace bcycle_backend.Migrations
                 {
                     ID = table.Column<int>(nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    Distance = table.Column<float>(nullable: false),
+                    Distance = table.Column<double>(nullable: false),
+                    Time = table.Column<int>(nullable: false),
                     Started = table.Column<DateTime>(nullable: false),
                     Finished = table.Column<DateTime>(nullable: false),
                     MapImageUrl = table.Column<string>(nullable: true),
-                    HostUserID = table.Column<int>(nullable: false),
-                    GroupTripID = table.Column<int>(nullable: false),
-                    HostID = table.Column<int>(nullable: true)
+                    UserID = table.Column<int>(nullable: false),
+                    GroupTripID = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -129,11 +122,11 @@ namespace bcycle_backend.Migrations
                         principalColumn: "ID",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Trip_User_HostID",
-                        column: x => x.HostID,
+                        name: "FK_Trip_User_UserID",
+                        column: x => x.UserID,
                         principalTable: "User",
                         principalColumn: "ID",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -165,8 +158,7 @@ namespace bcycle_backend.Migrations
                     TripID = table.Column<int>(nullable: false),
                     Latitude = table.Column<float>(nullable: false),
                     Longitude = table.Column<float>(nullable: false),
-                    TimeReached = table.Column<DateTime>(nullable: false),
-                    TripID1 = table.Column<int>(nullable: true)
+                    TimeReached = table.Column<DateTime>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -177,12 +169,6 @@ namespace bcycle_backend.Migrations
                         principalTable: "Trip",
                         principalColumn: "ID",
                         onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_TripPoint_Trip_TripID1",
-                        column: x => x.TripID1,
-                        principalTable: "Trip",
-                        principalColumn: "ID",
-                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateIndex(
@@ -206,19 +192,14 @@ namespace bcycle_backend.Migrations
                 column: "GroupTripID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_GroupTripPoint_GroupTripID1",
-                table: "GroupTripPoint",
-                column: "GroupTripID1");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Trip_GroupTripID",
                 table: "Trip",
                 column: "GroupTripID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Trip_HostID",
+                name: "IX_Trip_UserID",
                 table: "Trip",
-                column: "HostID");
+                column: "UserID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_TripPhoto_TripID",
@@ -229,11 +210,6 @@ namespace bcycle_backend.Migrations
                 name: "IX_TripPoint_TripID",
                 table: "TripPoint",
                 column: "TripID");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_TripPoint_TripID1",
-                table: "TripPoint",
-                column: "TripID1");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
