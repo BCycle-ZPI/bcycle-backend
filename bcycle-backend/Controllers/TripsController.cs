@@ -49,6 +49,9 @@ namespace bcycle_backend.Controllers
         [HttpPost]
         public async Task<ActionResult<ResultContainer<int>>> Post([FromBody] Trip trip)
         {
+            trip.User = null;
+            trip.UserID = (await UserDataHelper.GetCurrentUserID()).Value;
+            
             using (var db = new BCycleContext())
             {
                 db.Add(trip);
