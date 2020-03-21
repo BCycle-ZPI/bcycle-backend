@@ -8,27 +8,10 @@ namespace bcycle_backend.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "User",
-                columns: table => new
-                {
-                    ID = table.Column<int>(nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    Name = table.Column<string>(nullable: true),
-                    Surname = table.Column<string>(nullable: true),
-                    Email = table.Column<string>(nullable: true),
-                    Password = table.Column<string>(nullable: true),
-                    PhotoUrl = table.Column<string>(nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_User", x => x.ID);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "GroupTrip",
                 columns: table => new
                 {
-                    ID = table.Column<int>(nullable: false)
+                    Id = table.Column<int>(nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     Name = table.Column<string>(nullable: true),
                     StartDate = table.Column<DateTime>(nullable: false),
@@ -36,43 +19,31 @@ namespace bcycle_backend.Migrations
                     Description = table.Column<string>(nullable: true),
                     TripCode = table.Column<string>(nullable: true),
                     MapImageUrl = table.Column<string>(nullable: true),
-                    HostID = table.Column<int>(nullable: false)
+                    HostId = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_GroupTrip", x => x.ID);
-                    table.ForeignKey(
-                        name: "FK_GroupTrip_User_HostID",
-                        column: x => x.HostID,
-                        principalTable: "User",
-                        principalColumn: "ID",
-                        onDelete: ReferentialAction.Cascade);
+                    table.PrimaryKey("PK_GroupTrip", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
                 name: "GroupTripParticipant",
                 columns: table => new
                 {
-                    ID = table.Column<int>(nullable: false)
+                    Id = table.Column<int>(nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     IsApproved = table.Column<bool>(nullable: false),
-                    GroupTripID = table.Column<int>(nullable: false),
-                    UserID = table.Column<int>(nullable: false)
+                    GroupTripId = table.Column<int>(nullable: false),
+                    UserId = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_GroupTripParticipant", x => x.ID);
+                    table.PrimaryKey("PK_GroupTripParticipant", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_GroupTripParticipant_GroupTrip_GroupTripID",
-                        column: x => x.GroupTripID,
+                        name: "FK_GroupTripParticipant_GroupTrip_GroupTripId",
+                        column: x => x.GroupTripId,
                         principalTable: "GroupTrip",
-                        principalColumn: "ID",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_GroupTripParticipant_User_UserID",
-                        column: x => x.UserID,
-                        principalTable: "User",
-                        principalColumn: "ID",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -80,21 +51,21 @@ namespace bcycle_backend.Migrations
                 name: "GroupTripPoint",
                 columns: table => new
                 {
-                    ID = table.Column<int>(nullable: false)
+                    Id = table.Column<int>(nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     Longitude = table.Column<float>(nullable: false),
                     Latitude = table.Column<float>(nullable: false),
                     Order = table.Column<int>(nullable: false),
-                    GroupTripID = table.Column<int>(nullable: false)
+                    GroupTripId = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_GroupTripPoint", x => x.ID);
+                    table.PrimaryKey("PK_GroupTripPoint", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_GroupTripPoint_GroupTrip_GroupTripID",
-                        column: x => x.GroupTripID,
+                        name: "FK_GroupTripPoint_GroupTrip_GroupTripId",
+                        column: x => x.GroupTripId,
                         principalTable: "GroupTrip",
-                        principalColumn: "ID",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -102,50 +73,44 @@ namespace bcycle_backend.Migrations
                 name: "Trip",
                 columns: table => new
                 {
-                    ID = table.Column<int>(nullable: false)
+                    Id = table.Column<int>(nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     Distance = table.Column<double>(nullable: false),
                     Time = table.Column<int>(nullable: false),
                     Started = table.Column<DateTime>(nullable: false),
                     Finished = table.Column<DateTime>(nullable: false),
                     MapImageUrl = table.Column<string>(nullable: true),
-                    UserID = table.Column<int>(nullable: false),
-                    GroupTripID = table.Column<int>(nullable: true)
+                    UserId = table.Column<string>(nullable: true),
+                    GroupTripId = table.Column<int>(nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Trip", x => x.ID);
+                    table.PrimaryKey("PK_Trip", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Trip_GroupTrip_GroupTripID",
-                        column: x => x.GroupTripID,
+                        name: "FK_Trip_GroupTrip_GroupTripId",
+                        column: x => x.GroupTripId,
                         principalTable: "GroupTrip",
-                        principalColumn: "ID",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_Trip_User_UserID",
-                        column: x => x.UserID,
-                        principalTable: "User",
-                        principalColumn: "ID",
-                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
                 name: "TripPhoto",
                 columns: table => new
                 {
-                    ID = table.Column<int>(nullable: false)
+                    Id = table.Column<int>(nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     PhotoUrl = table.Column<string>(nullable: true),
-                    TripID = table.Column<int>(nullable: false)
+                    TripId = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_TripPhoto", x => x.ID);
+                    table.PrimaryKey("PK_TripPhoto", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_TripPhoto_Trip_TripID",
-                        column: x => x.TripID,
+                        name: "FK_TripPhoto_Trip_TripId",
+                        column: x => x.TripId,
                         principalTable: "Trip",
-                        principalColumn: "ID",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -153,63 +118,48 @@ namespace bcycle_backend.Migrations
                 name: "TripPoint",
                 columns: table => new
                 {
-                    ID = table.Column<int>(nullable: false)
+                    Id = table.Column<int>(nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    TripID = table.Column<int>(nullable: false),
+                    TripId = table.Column<int>(nullable: false),
                     Latitude = table.Column<float>(nullable: false),
                     Longitude = table.Column<float>(nullable: false),
                     TimeReached = table.Column<DateTime>(nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_TripPoint", x => x.ID);
+                    table.PrimaryKey("PK_TripPoint", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_TripPoint_Trip_TripID",
-                        column: x => x.TripID,
+                        name: "FK_TripPoint_Trip_TripId",
+                        column: x => x.TripId,
                         principalTable: "Trip",
-                        principalColumn: "ID",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_GroupTrip_HostID",
-                table: "GroupTrip",
-                column: "HostID");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_GroupTripParticipant_GroupTripID",
+                name: "IX_GroupTripParticipant_GroupTripId",
                 table: "GroupTripParticipant",
-                column: "GroupTripID");
+                column: "GroupTripId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_GroupTripParticipant_UserID",
-                table: "GroupTripParticipant",
-                column: "UserID");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_GroupTripPoint_GroupTripID",
+                name: "IX_GroupTripPoint_GroupTripId",
                 table: "GroupTripPoint",
-                column: "GroupTripID");
+                column: "GroupTripId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Trip_GroupTripID",
+                name: "IX_Trip_GroupTripId",
                 table: "Trip",
-                column: "GroupTripID");
+                column: "GroupTripId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Trip_UserID",
-                table: "Trip",
-                column: "UserID");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_TripPhoto_TripID",
+                name: "IX_TripPhoto_TripId",
                 table: "TripPhoto",
-                column: "TripID");
+                column: "TripId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_TripPoint_TripID",
+                name: "IX_TripPoint_TripId",
                 table: "TripPoint",
-                column: "TripID");
+                column: "TripId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -231,9 +181,6 @@ namespace bcycle_backend.Migrations
 
             migrationBuilder.DropTable(
                 name: "GroupTrip");
-
-            migrationBuilder.DropTable(
-                name: "User");
         }
     }
 }

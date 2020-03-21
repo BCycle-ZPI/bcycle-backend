@@ -7,12 +7,11 @@ namespace bcycle_backend.Models
 {
     public class GroupTripParticipant
     {
-        public int ID { get; set; }
+        public int Id { get; set; }
         public bool IsApproved { get; set; } = false;
-        public int GroupTripID { get; set; }
-        public int UserID { get; set; }
+        public int GroupTripId { get; set; }
+        public string UserId { get; set; }
 
         public GroupTrip GroupTrip { get; set; }
-        public User User { get; set; }
     }
 }
