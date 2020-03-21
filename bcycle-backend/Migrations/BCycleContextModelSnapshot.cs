@@ -91,7 +91,7 @@ namespace bcycle_backend.Migrations
 
                     b.Property<DateTime>("Finished");
 
-                    b.Property<int>("GroupTripID");
+                    b.Property<int?>("GroupTripID");
 
                     b.Property<string>("MapImageUrl");
 
@@ -199,8 +199,7 @@ namespace bcycle_backend.Migrations
                 {
                     b.HasOne("bcycle_backend.Models.GroupTrip", "GroupTrip")
                         .WithMany()
-                        .HasForeignKey("GroupTripID")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("GroupTripID");
 
                     b.HasOne("bcycle_backend.Models.User", "User")
                         .WithMany("Trips")

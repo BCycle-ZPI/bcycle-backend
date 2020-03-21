@@ -11,7 +11,7 @@ namespace bcycle_backend.Models
         {
             // TODO placeholder
             await Task.Delay(1);
-            return 0;
+            return 123;
         }
 
         public static async Task<User> GetCurrentUserDetails()
@@ -25,7 +25,7 @@ namespace bcycle_backend.Models
         {
             // TODO placeholder
             await Task.Delay(1);
-            return null;
+            return new User() { ID = 123, Email = "example@example.com", Name = "Example", Surname = "User" };
         }
 
         public static async Task<List<User>> GetUserDetails(List<int> ids)

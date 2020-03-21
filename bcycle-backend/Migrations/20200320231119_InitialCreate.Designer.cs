@@ -9,7 +9,7 @@ using bcycle_backend.Data;
 namespace bcycle_backend.Migrations
 {
     [DbContext(typeof(BCycleContext))]
-    [Migration("20200319230518_InitialCreate")]
+    [Migration("20200320231119_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -93,7 +93,7 @@ namespace bcycle_backend.Migrations
 
                     b.Property<DateTime>("Finished");
 
-                    b.Property<int>("GroupTripID");
+                    b.Property<int?>("GroupTripID");
 
                     b.Property<string>("MapImageUrl");
 
@@ -201,8 +201,7 @@ namespace bcycle_backend.Migrations
                 {
                     b.HasOne("bcycle_backend.Models.GroupTrip", "GroupTrip")
                         .WithMany()
-                        .HasForeignKey("GroupTripID")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("GroupTripID");
 
                     b.HasOne("bcycle_backend.Models.User", "User")
                         .WithMany("Trips")

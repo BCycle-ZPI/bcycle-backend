@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using bcycle_backend.Data;
 using bcycle_backend.Models;
+using bcycle_backend.Models.Dto;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -15,87 +16,93 @@ namespace bcycle_backend.Controllers
     [ApiController]
     public class TripsController : ControllerBase
     {
-        private IConfiguration Configuration { get; set; }
-        public TripsController(IConfiguration configuration) : base()
+        private readonly IConfiguration _configuration;
+        private readonly BCycleContext _dbContext;
+
+        public TripsController(IConfiguration configuration, BCycleContext dbContext) : base()
         {
-            this.Configuration = configuration;
+            this._configuration = configuration;
+            this._dbContext = dbContext;
         }
+
+
+        // temporary testing placeholder
+        [HttpPost("fakeuser")]
+        public async Task<ActionResult> CreateFakeUser()
+        {
+            User user = await UserDataHelper.GetCurrentUserDetails();
+            _dbContext.Add(user);
+            await _dbContext.SaveChangesAsync();
+            return Ok();
+        }
+
         // GET api/trips
         [HttpGet]
-        public async Task<ActionResult<ResultContainer<IEnumerable<Trip>>>> Get()
+        public async Task<ActionResult<ResultContainer<IEnumerable<TripDto>>>> Get()
         {
             int userID = (await UserDataHelper.GetCurrentUserID()).Value;
-            using (var db = new BCycleContext())
-            {
-                return new ResultContainer<IEnumerable<Trip>>(
-                    await db.Trips
-                        .Where(t => t.UserID == userID)
-                        .OrderByDescending(t => t.Started)
-                        .ToListAsync());
-            }
+            return new ResultContainer<IEnumerable<TripDto>>(
+                await _dbContext.Trips
+                    .Where(t => t.UserID == userID)
+                    .Include(t => t.TripPhotos).Include(t => t.TripPoints)
+                    .OrderByDescending(t => t.Started)
+                    .Select(t => t.AsDto())
+                    .ToListAsync());
         }
 
         // GET api/trips/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<ResultContainer<Trip>>> Get(int id)
+        public async Task<ActionResult<ResultContainer<TripDto>>> Get(int id)
         {
-            using (var db = new BCycleContext())
-            {
-                return new ResultContainer<Trip>(await db.GetMyTrip(id));
-            }
+            return new ResultContainer<TripDto>((await _dbContext.GetMyTrip(id)).AsDto());
         }
 
         // POST api/trips
         [HttpPost]
-        public async Task<ActionResult<ResultContainer<int>>> Post([FromBody] Trip trip)
+        public async Task<ActionResult<ResultContainer<int>>> Post([FromBody] TripDto tripDto)
         {
-            trip.User = null;
+            tripDto.ID = 0;
+            Trip trip = tripDto.AsTrip();
             trip.UserID = (await UserDataHelper.GetCurrentUserID()).Value;
             
-            using (var db = new BCycleContext())
-            {
-                db.Add(trip);
-                int results = await db.SaveChangesAsync();
-                return new ResultContainer<int>(trip.ID);
-            }
+            _dbContext.Add(trip);
+            await _dbContext.SaveChangesAsync();
+            return new ResultContainer<int>(trip.ID);
         }
 
         // PUT api/trips/5/photo
         [HttpPut("{id}/photo")]
         public async Task<ActionResult<ResultContainer<string>>> PutPhoto(int id)
         {
-            using (var db = new BCycleContext())
+            Trip trip = await _dbContext.GetMyTrip(id);
+
+            string uploadPath = _configuration.GetValue<string>("UploadPath");
+            string uploadPrefix = _configuration.GetValue<string>("UploadPrefix");
+            Directory.CreateDirectory(uploadPath);
+
+            Guid guid = Guid.NewGuid();
+            string fileName = guid.ToString() + ".jpg";
+            string filePath = Path.Combine(uploadPath, fileName);
+            using (var stream = System.IO.File.Create(filePath))
             {
-                Trip trip = await db.GetMyTrip(id);
-                string uploadPath = Configuration.GetValue<string>("UploadPath");
-                string uploadPrefix = Configuration.GetValue<string>("UploadPrefix");
-                Guid guid = new Guid();
-                string fileName = guid.ToString() + ".jpg";
-                string filePath = Path.Combine(uploadPath, fileName);
-                using (var stream = System.IO.File.Create(filePath))
-                {
-                    await Request.Body.CopyToAsync(stream);
-                }
-
-                string url = $"{Request.Scheme}://{Request.Host}/{uploadPrefix}/{fileName}";
-                trip.TripPhotos.Add(
-                    new TripPhoto { PhotoUrl = url, Trip = trip }
-                );
-
-                await db.SaveChangesAsync();
-                return new ResultContainer<string>(url);
+                await Request.Body.CopyToAsync(stream);
             }
+
+            string url = $"{Request.Scheme}://{Request.Host}/{uploadPrefix}/{fileName}";
+            trip.TripPhotos.Add(
+                new TripPhoto { PhotoUrl = url, Trip = trip }
+            );
+
+            await _dbContext.SaveChangesAsync();
+            return new ResultContainer<string>(url);
         }
 
         // DELETE api/trips/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAsync(int id)
         {
-            using (var db = new BCycleContext())
-            {
-                Trip trip = await db.GetMyTrip(id);
-                db.Remove(trip);
-            }
+            Trip trip = await _dbContext.GetMyTrip(id);
+            _dbContext.Remove(trip);
             return Ok();
         }
     }

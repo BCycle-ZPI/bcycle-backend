@@ -9,10 +9,6 @@ namespace bcycle_backend.Data
 {
     public class BCycleContext : DbContext
     {
-        public BCycleContext() : base()
-        {
-        }
-
         public BCycleContext(DbContextOptions<BCycleContext> options) : base(options)
         {
         }
@@ -74,14 +70,17 @@ namespace bcycle_backend.Data
             modelBuilder.Entity<User>().ToTable("User");
         }
 
-        internal async Task<Trip> GetMyTrip(int id) {
+        internal async Task<Trip> GetMyTrip(int id)
+        {
             int userID = (await UserDataHelper.GetCurrentUserID()).Value;
             return await GetMyTrip(id, userID);
         }
 
-        internal async Task<Trip> GetMyTrip(int id, int userID) {
+        internal async Task<Trip> GetMyTrip(int id, int userID)
+        {
             return await Trips
                 .Where(t => t.UserID == userID && t.ID == id)
+                .Include(t => t.TripPhotos).Include(t => t.TripPoints)
                 .FirstAsync();
         }
     }

@@ -110,7 +110,7 @@ namespace bcycle_backend.Migrations
                     Finished = table.Column<DateTime>(nullable: false),
                     MapImageUrl = table.Column<string>(nullable: true),
                     UserID = table.Column<int>(nullable: false),
-                    GroupTripID = table.Column<int>(nullable: false)
+                    GroupTripID = table.Column<int>(nullable: true)
                 },
                 constraints: table =>
                 {
@@ -120,7 +120,7 @@ namespace bcycle_backend.Migrations
                         column: x => x.GroupTripID,
                         principalTable: "GroupTrip",
                         principalColumn: "ID",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_Trip_User_UserID",
                         column: x => x.UserID,
