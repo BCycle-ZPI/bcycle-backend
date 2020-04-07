@@ -9,7 +9,7 @@ using bcycle_backend.Data;
 namespace bcycle_backend.Migrations
 {
     [DbContext(typeof(BCycleContext))]
-    [Migration("20200322113819_InitialCreate")]
+    [Migration("20200410090523_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -18,7 +18,7 @@ namespace bcycle_backend.Migrations
             modelBuilder
                 .HasAnnotation("ProductVersion", "2.2.6-servicing-10079");
 
-            modelBuilder.Entity("bcycle_backend.Models.GroupTrip", b =>
+            modelBuilder.Entity("bcycle_backend.Models.Entities.GroupTrip", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
@@ -29,8 +29,6 @@ namespace bcycle_backend.Migrations
 
                     b.Property<string>("HostId");
 
-                    b.Property<string>("MapImageUrl");
-
                     b.Property<string>("Name");
 
                     b.Property<DateTime>("StartDate");
@@ -39,48 +37,45 @@ namespace bcycle_backend.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("GroupTrip");
+                    b.ToTable("GroupTrips");
                 });
 
-            modelBuilder.Entity("bcycle_backend.Models.GroupTripParticipant", b =>
+            modelBuilder.Entity("bcycle_backend.Models.Entities.GroupTripParticipant", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<int>("GroupTripId");
-
-                    b.Property<bool>("IsApproved");
-
                     b.Property<string>("UserId");
 
-                    b.HasKey("Id");
+                    b.Property<int>("GroupTripId");
+
+                    b.Property<int>("Status");
+
+                    b.HasKey("UserId", "GroupTripId");
 
                     b.HasIndex("GroupTripId");
 
-                    b.ToTable("GroupTripParticipant");
+                    b.ToTable("GroupTripParticipants");
                 });
 
-            modelBuilder.Entity("bcycle_backend.Models.GroupTripPoint", b =>
+            modelBuilder.Entity("bcycle_backend.Models.Entities.GroupTripPoint", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
                     b.Property<int>("GroupTripId");
 
-                    b.Property<float>("Latitude");
+                    b.Property<double>("Latitude");
 
-                    b.Property<float>("Longitude");
+                    b.Property<double>("Longitude");
 
-                    b.Property<int>("Order");
+                    b.Property<int>("Ordinal");
 
                     b.HasKey("Id");
 
                     b.HasIndex("GroupTripId");
 
-                    b.ToTable("GroupTripPoint");
+                    b.ToTable("GroupTripPoints");
                 });
 
-            modelBuilder.Entity("bcycle_backend.Models.Trip", b =>
+            modelBuilder.Entity("bcycle_backend.Models.Entities.Trip", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
@@ -90,8 +85,6 @@ namespace bcycle_backend.Migrations
                     b.Property<DateTime>("Finished");
 
                     b.Property<int?>("GroupTripId");
-
-                    b.Property<string>("MapImageUrl");
 
                     b.Property<DateTime>("Started");
 
@@ -103,10 +96,10 @@ namespace bcycle_backend.Migrations
 
                     b.HasIndex("GroupTripId");
 
-                    b.ToTable("Trip");
+                    b.ToTable("Trips");
                 });
 
-            modelBuilder.Entity("bcycle_backend.Models.TripPhoto", b =>
+            modelBuilder.Entity("bcycle_backend.Models.Entities.TripPhoto", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
@@ -119,10 +112,10 @@ namespace bcycle_backend.Migrations
 
                     b.HasIndex("TripId");
 
-                    b.ToTable("TripPhoto");
+                    b.ToTable("TripPhotos");
                 });
 
-            modelBuilder.Entity("bcycle_backend.Models.TripPoint", b =>
+            modelBuilder.Entity("bcycle_backend.Models.Entities.TripPoint", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
@@ -139,44 +132,44 @@ namespace bcycle_backend.Migrations
 
                     b.HasIndex("TripId");
 
-                    b.ToTable("TripPoint");
+                    b.ToTable("TripPoints");
                 });
 
-            modelBuilder.Entity("bcycle_backend.Models.GroupTripParticipant", b =>
+            modelBuilder.Entity("bcycle_backend.Models.Entities.GroupTripParticipant", b =>
                 {
-                    b.HasOne("bcycle_backend.Models.GroupTrip", "GroupTrip")
+                    b.HasOne("bcycle_backend.Models.Entities.GroupTrip", "GroupTrip")
                         .WithMany("Participants")
                         .HasForeignKey("GroupTripId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("bcycle_backend.Models.GroupTripPoint", b =>
+            modelBuilder.Entity("bcycle_backend.Models.Entities.GroupTripPoint", b =>
                 {
-                    b.HasOne("bcycle_backend.Models.GroupTrip", "GroupTrip")
-                        .WithMany("GroupTripPoints")
+                    b.HasOne("bcycle_backend.Models.Entities.GroupTrip", "GroupTrip")
+                        .WithMany("Route")
                         .HasForeignKey("GroupTripId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("bcycle_backend.Models.Trip", b =>
+            modelBuilder.Entity("bcycle_backend.Models.Entities.Trip", b =>
                 {
-                    b.HasOne("bcycle_backend.Models.GroupTrip", "GroupTrip")
+                    b.HasOne("bcycle_backend.Models.Entities.GroupTrip", "GroupTrip")
                         .WithMany()
                         .HasForeignKey("GroupTripId");
                 });
 
-            modelBuilder.Entity("bcycle_backend.Models.TripPhoto", b =>
+            modelBuilder.Entity("bcycle_backend.Models.Entities.TripPhoto", b =>
                 {
-                    b.HasOne("bcycle_backend.Models.Trip", "Trip")
-                        .WithMany("TripPhotos")
+                    b.HasOne("bcycle_backend.Models.Entities.Trip", "Trip")
+                        .WithMany("Photos")
                         .HasForeignKey("TripId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("bcycle_backend.Models.TripPoint", b =>
+            modelBuilder.Entity("bcycle_backend.Models.Entities.TripPoint", b =>
                 {
-                    b.HasOne("bcycle_backend.Models.Trip", "Trip")
-                        .WithMany("TripPoints")
+                    b.HasOne("bcycle_backend.Models.Entities.Trip", "Trip")
+                        .WithMany("Route")
                         .HasForeignKey("TripId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });

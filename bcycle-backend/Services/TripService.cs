@@ -1,10 +1,12 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using bcycle_backend.Data;
 using bcycle_backend.Models;
-using bcycle_backend.Models.Dto;
+using bcycle_backend.Models.Entities;
+using bcycle_backend.Models.Requests;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
@@ -23,28 +25,35 @@ namespace bcycle_backend.Services
             _dbContext = context;
         }
 
-        public IQueryable<TripDto> GetAll(string userId) =>
+        public IQueryable<Trip> GetAll(string userId) =>
             _tripsDbSet
                 .Where(t => t.UserId == userId)
-                .Include(t => t.TripPhotos)
-                .Include(t => t.TripPoints)
-                .OrderByDescending(t => t.Started)
-                .Select(t => t.AsDto());
+                .Include(t => t.Photos)
+                .Include(t => t.Route)
+                .OrderByDescending(t => t.Started);
 
         public Task<Trip> GetUserTripAsync(int tripId, string userId) =>
             _tripsDbSet
-                .Where(t => t.Id == tripId && t.UserId == userId)
-                .Include(t => t.TripPhotos)
-                .Include(t => t.TripPoints)
+                .Where(t => t.Id == tripId)
+                .Where(t => t.UserId == userId)
+                .Include(t => t.Photos)
+                .Include(t => t.Route)
                 .FirstOrDefaultAsync();
 
-
-        public async Task<Trip> SaveTripAsync(TripDto tripDto, string userId)
+        public async Task<Trip> SaveTripAsync(TripRequest data, string subjectId)
         {
-            var trip = tripDto.AsTrip();
-            trip.UserId = userId;
+            var trip = new Trip
+            {
+                Distance = data.Distance,
+                Time = data.Time,
+                Started = data.Started,
+                Finished = data.Finished,
+                UserId = subjectId,
+                GroupTripId = data.GroupTripId,
+                Route = data.Route
+            };
 
-            _tripsDbSet.Add(trip);
+            await _tripsDbSet.AddAsync(trip);
             await _dbContext.SaveChangesAsync();
             return trip;
         }
@@ -52,40 +61,32 @@ namespace bcycle_backend.Services
         public async Task<Trip> RemoveAsync(int tripId, string userId)
         {
             var trip = await GetUserTripAsync(tripId, userId);
-            return trip == null ? null : await Remove(trip);
+            if (trip == null) return null;
 
-            async Task<Trip> Remove(Trip tripToDelete)
-            {
-                _tripsDbSet.Remove(tripToDelete);
-                await _dbContext.SaveChangesAsync();
-                return tripToDelete;
-            }
+            _tripsDbSet.Remove(trip);
+            await _dbContext.SaveChangesAsync();
+            return trip;
         }
 
         public async Task<TripPhoto> PutPhotoAsync(Stream photoData, String urlBase, int tripId, string userId)
         {
             var trip = await GetUserTripAsync(tripId, userId);
-
-            if (trip == null)
-            {
-                return null;
-            }
+            if (trip == null) return null;
 
             var uploadPath = _configuration.GetValue<string>("UploadPath");
             var uploadPrefix = _configuration.GetValue<string>("UploadPrefix");
-            
+
             Directory.CreateDirectory(uploadPath);
-            var fileName =  Guid.NewGuid() + ".jpg";
+            var fileName = Guid.NewGuid() + ".jpg";
             var filePath = Path.Combine(uploadPath, fileName);
-            
-            using (var stream = File.Create(filePath))
-                await photoData.CopyToAsync(stream);
-            
+
+            using (var stream = File.Create(filePath)) await photoData.CopyToAsync(stream);
+
             var url = $"{urlBase}/{uploadPrefix}/{fileName}";
             var photo = new TripPhoto {PhotoUrl = url, Trip = trip};
-            trip.TripPhotos.Add(photo);
+            trip.Photos.Add(photo);
             await _dbContext.SaveChangesAsync();
-            
+
             return photo;
         }
     }

@@ -33,7 +33,7 @@ namespace bcycle_backend.Security
             {
                 var token = ExtractToken();
                 var decodedToken = await _auth.VerifyIdTokenAsync(token);
-                var auth = await CreateAuthenticationAsync(decodedToken);
+                var auth = CreateAuthenticationAsync(decodedToken);
                 return AuthenticateResult.Success(auth);
             }
             catch (Exception e)
@@ -51,10 +51,9 @@ namespace bcycle_backend.Security
             return authHeader.Replace(BearerTokenPrefix, "");
         }
 
-        private async Task<AuthenticationTicket> CreateAuthenticationAsync(FirebaseToken token)
+        private AuthenticationTicket CreateAuthenticationAsync(FirebaseToken token)
         {
-            var user = await _auth.GetUserAsync(token.Uid);
-            var claims = new[] {new Claim(ClaimTypes.Sid, user.Uid), new Claim(ClaimTypes.Email, user.Email)};
+            var claims = new[] {new Claim(ClaimTypes.Sid, token.Uid)};
             var identity = new ClaimsIdentity(claims);
             var principal = new ClaimsPrincipal(identity);
             return new AuthenticationTicket(principal, Scheme.Name);

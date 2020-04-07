@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using bcycle_backend.Models.Dto;
+using bcycle_backend.Models.Responses;
 
-namespace bcycle_backend.Models
+namespace bcycle_backend.Models.Entities
 {
     public class Trip
     {
@@ -13,25 +12,25 @@ namespace bcycle_backend.Models
         public int Time { get; set; }
         public DateTime Started { get; set; }
         public DateTime Finished { get; set; }
-        public string MapImageUrl { get; set; }
         public string UserId { get; set; }
         public int? GroupTripId { get; set; }
 
         public GroupTrip GroupTrip { get; set; }
-        public List<TripPoint> TripPoints { get; set; }
-        public List<TripPhoto> TripPhotos { get; set; }
+        public List<TripPoint> Route { get; set; }
+        public List<TripPhoto> Photos { get; set; }
 
-        public TripDto AsDto() => new TripDto
+        // public string MapImageUrl { get; set; }
+
+        public TripResponse AsResponse() => new TripResponse
         {
             Id = Id,
             Distance = Distance,
             Time = Time,
             Started = Started,
             Finished = Finished,
-            MapImageUrl = MapImageUrl,
             GroupTripId = GroupTripId,
-            TripPoints = TripPoints.Select(tp => tp.AsDto()).ToList(),
-            TripPhotos = TripPhotos.Select(ph => ph.PhotoUrl).ToList()
+            Route = Route,
+            Photos = Photos.Select(p => p.PhotoUrl).ToList()
         };
     }
 }

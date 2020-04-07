@@ -1,7 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using bcycle_backend.Models;
-using bcycle_backend.Models.Dto;
+using bcycle_backend.Models.Requests;
+using bcycle_backend.Models.Responses;
 using bcycle_backend.Security;
 using bcycle_backend.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -10,7 +13,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace bcycle_backend.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("/api/trips")]
     [ApiController]
     [Authorize]
     public class TripsController : ControllerBase
@@ -24,30 +27,27 @@ namespace bcycle_backend.Controllers
 
         // GET /api/trips
         [HttpGet]
-        public async Task<ActionResult<ResultContainer<IEnumerable<TripDto>>>> Get()
+        public async Task<ActionResult<ResultContainer<IEnumerable<TripResponse>>>> Get()
         {
-            var trips = await _tripService.GetAll(User.GetId()).ToListAsync();
-            return new ResultContainer<IEnumerable<TripDto>>(trips);
+            var trips = await _tripService.GetAll(User.GetId()).Select(t => t.AsResponse()).ToListAsync();
+            return new ResultContainer<IEnumerable<TripResponse>>(trips);
         }
 
         // GET /api/trips/{id}
         [HttpGet("{id}")]
-        public async Task<ActionResult<ResultContainer<TripDto>>> Get(int id)
+        public async Task<ActionResult<ResultContainer<TripResponse>>> Get(int id)
         {
             var trip = await _tripService.GetUserTripAsync(id, User.GetId());
-            if (trip == null)
-            {
-                return NotFound();
-            }
+            if (trip == null) return NotFound();
 
-            return new ResultContainer<TripDto>(trip.AsDto());
+            return new ResultContainer<TripResponse>(trip.AsResponse());
         }
 
         // POST /api/trips
         [HttpPost]
-        public async Task<ActionResult<ResultContainer<int>>> Post([FromBody] TripDto tripDto)
+        public async Task<ActionResult<ResultContainer<int>>> Post([FromBody] TripRequest data)
         {
-            var savedTrip = await _tripService.SaveTripAsync(tripDto, User.GetId());
+            var savedTrip = await _tripService.SaveTripAsync(data, User.GetId());
             return new ResultContainer<int>(savedTrip.Id);
         }
 
@@ -62,10 +62,7 @@ namespace bcycle_backend.Controllers
                 User.GetId()
             );
 
-            if (photo == null)
-            {
-                return BadRequest();
-            }
+            if (photo == null) return BadRequest();
 
             return new ResultContainer<string>(photo.PhotoUrl);
         }
