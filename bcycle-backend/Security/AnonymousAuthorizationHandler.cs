@@ -1,7 +1,4 @@
-using System.Linq;
-using System.Security.Claims;
 using System.Threading.Tasks;
-using bcycle_backend.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authorization.Infrastructure;
 
@@ -13,15 +10,14 @@ namespace bcycle_backend.Security
             AuthorizationHandlerContext context,
             DenyAnonymousAuthorizationRequirement requirement)
         {
-            if (IsUserAuthenticated(context.User))
+            if (IsAuthenticated(context))
                 context.Succeed(requirement);
             else
                 context.Fail();
-            
+
             return Task.CompletedTask;
         }
 
-        private bool IsUserAuthenticated(ClaimsPrincipal principal) =>
-            principal?.GetId() != null && principal.GetEmail() != null;
+        private bool IsAuthenticated(AuthorizationHandlerContext context) => context.User?.GetId() != null;
     }
 }
