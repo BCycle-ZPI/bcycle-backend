@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
 using bcycle_backend.Models;
-using bcycle_backend.Models.Entities;
 using bcycle_backend.Models.Requests;
+using bcycle_backend.Models.Responses;
 using bcycle_backend.Security;
 using bcycle_backend.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -9,16 +9,18 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace bcycle_backend.Controllers
 {
-    [Route("/api/group-trips")]
-    [ApiController]
     [Authorize]
+    [ApiController]
+    [Route("/api/group-trips")]
     public class GroupTripsController : ControllerBase
     {
         private readonly GroupTripService _tripService;
+        private readonly UserService _userService;
 
-        public GroupTripsController(GroupTripService tripService)
+        public GroupTripsController(GroupTripService tripService, UserService userService)
         {
             _tripService = tripService;
+            _userService = userService;
         }
 
         // POST /api/group-trips
@@ -28,16 +30,16 @@ namespace bcycle_backend.Controllers
             var trip = await _tripService.CreateAsync(data, User.GetId());
             return new ResultContainer<int>(trip.Id);
         }
-
-        // TODO: return user data instead of ids
+        
         // GET /api/group-trips/:id
         [HttpGet("{id}")]
-        public async Task<ActionResult<ResultContainer<GroupTrip>>> Get(int id)
+        public async Task<ActionResult<ResultContainer<GroupTripResponse>>> Get(int id)
         {
             var trip = await _tripService.FindAsync(id, User.GetId());
             if (trip == null) return NotFound();
 
-            return new ResultContainer<GroupTrip>(trip);
+            var response = await trip.AsResponseAsync(_userService.GetUserInfoAsync);
+            return new ResultContainer<GroupTripResponse>(response);
         }
 
         // PUT /api/group-trips/:id
@@ -73,16 +75,15 @@ namespace bcycle_backend.Controllers
             var result = await _tripService.AcceptRequestAsync(tripId, userId, User.GetId());
             return CreateResponse(result);
         }
-       
+
         // DELETE /group-trips/:tripId/requests/:userid
         [HttpDelete("{tripId}/requests/{userId}")]
         public async Task<IActionResult> Reject(int tripId, string userId)
         {
             var result = await _tripService.RejectRequestAsync(tripId, userId, User.GetId());
             return CreateResponse(result);
-            
         }
-        
+
         // DELETE /group-trips/:tripId/participants/:userid
         [HttpDelete("{tripId}/participants/{userId}")]
         public async Task<IActionResult> RemoveParticipant(int tripId, string userId)
@@ -90,7 +91,7 @@ namespace bcycle_backend.Controllers
             var result = await _tripService.RemoveParticipant(tripId, userId, User.GetId());
             return CreateResponse(result);
         }
-        
+
         // We may choose better way for returning responses rather than simple null/non null if we need to 
         private IActionResult CreateResponse(object obj) => obj == null ? (IActionResult)NotFound() : Ok();
     }
