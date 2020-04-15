@@ -9,14 +9,15 @@ using bcycle_backend.Data;
 namespace bcycle_backend.Migrations
 {
     [DbContext(typeof(BCycleContext))]
-    [Migration("20200505181121_InitialCreate")]
+    [Migration("20200415222428_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "2.2.6-servicing-10079");
+                .HasAnnotation("ProductVersion", "2.2.6-servicing-10079")
+                .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
             modelBuilder.Entity("bcycle_backend.Models.Entities.GroupTrip", b =>
                 {
@@ -30,8 +31,6 @@ namespace bcycle_backend.Migrations
                     b.Property<string>("HostId");
 
                     b.Property<string>("Name");
-
-                    b.Property<Guid?>("SharingGuid");
 
                     b.Property<DateTime>("StartDate");
 
@@ -87,8 +86,6 @@ namespace bcycle_backend.Migrations
                     b.Property<DateTime>("Finished");
 
                     b.Property<int?>("GroupTripId");
-
-                    b.Property<Guid?>("SharingGuid");
 
                     b.Property<DateTime>("Started");
 
@@ -158,7 +155,7 @@ namespace bcycle_backend.Migrations
             modelBuilder.Entity("bcycle_backend.Models.Entities.Trip", b =>
                 {
                     b.HasOne("bcycle_backend.Models.Entities.GroupTrip", "GroupTrip")
-                        .WithMany("Trips")
+                        .WithMany()
                         .HasForeignKey("GroupTripId");
                 });
 

@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿﻿using System.IO;
+﻿using System;
+using System.Collections.Generic;
 using bcycle_backend.Data;
 using bcycle_backend.Security;
 using bcycle_backend.Services;
@@ -25,7 +27,6 @@ namespace bcycle_backend
     public class Startup
     {
         private IConfiguration Configuration { get; }
-
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -61,15 +62,42 @@ namespace bcycle_backend
                 .AddAuthentication(FirebaseAuthScheme)
                 .AddScheme<AuthenticationSchemeOptions, FirebaseAuthHandler>(FirebaseAuthScheme, null);
 
-            services.AddSpaStaticFiles(configuration =>
-                configuration.RootPath = "public"
-            );
-
-            // TODO: switch to SQL Server in production?
-            services.AddDbContext<BCycleContext>(options =>
-                options.UseSqlite(Configuration.GetConnectionString("DefaultConnection")));
-
             services.AddSpaStaticFiles(configuration => { configuration.RootPath = "WebApp/build"; });
+
+            // Environment variable format: Database=...;Data Source=host:port;User Id=...;Password=...
+            // Expected format: Server=host;Port=port;Database=...;User=...;Password=...
+            String envConnectionString = Environment.GetEnvironmentVariable("MYSQLCONNSTR_localdb");
+            String connectionString;
+
+            if (envConnectionString != null)
+            {
+                String[] groups = envConnectionString.Split(";", 4);
+                List<string> newGroups = new List<string>();
+                foreach (String group in groups)
+                {
+                    String[] values = group.Split("=", 2);
+                    switch (values[0])
+                    {
+                        case "Data Source":
+                            String[] hostPort = values[1].Split(":");
+                            newGroups.Insert(0, $"Server={hostPort[0]};Port={hostPort[1]}");
+                            break;
+                        case "User Id":
+                            newGroups.Add($"User={values[1]}");
+                            break;
+                        default:
+                            newGroups.Add(group);
+                            break;
+                    }
+                }
+                connectionString = string.Join(";", newGroups);
+            }
+            else
+            {
+                connectionString = Configuration.GetConnectionString("DefaultConnection");
+            }
+
+            services.AddDbContext<BCycleContext>(options => options.UseMySql(connectionString));
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
