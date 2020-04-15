@@ -118,9 +118,9 @@ namespace bcycle_backend.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<float>("Latitude");
+                    b.Property<double>("Latitude");
 
-                    b.Property<float>("Longitude");
+                    b.Property<double>("Longitude");
 
                     b.Property<DateTime>("TimeReached");
 

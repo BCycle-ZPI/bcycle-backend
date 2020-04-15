@@ -7,8 +7,8 @@ namespace bcycle_backend.Models.Entities
     {
         [JsonIgnore] public int Id { get; set; }
         [JsonIgnore] public int TripId { get; set; }
-        public float Latitude { get; set; }
-        public float Longitude { get; set; }
+        public double Latitude { get; set; }
+        public double Longitude { get; set; }
         public DateTime TimeReached { get; set; }
 
         [JsonIgnore] public Trip Trip { get; set; }

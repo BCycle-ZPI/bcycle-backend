@@ -117,8 +117,8 @@ namespace bcycle_backend.Migrations
                     Id = table.Column<int>(nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     TripId = table.Column<int>(nullable: false),
-                    Latitude = table.Column<float>(nullable: false),
-                    Longitude = table.Column<float>(nullable: false),
+                    Latitude = table.Column<double>(nullable: false),
+                    Longitude = table.Column<double>(nullable: false),
                     TimeReached = table.Column<DateTime>(nullable: false)
                 },
                 constraints: table =>

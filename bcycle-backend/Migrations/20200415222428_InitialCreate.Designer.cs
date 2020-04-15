@@ -9,7 +9,7 @@ using bcycle_backend.Data;
 namespace bcycle_backend.Migrations
 {
     [DbContext(typeof(BCycleContext))]
-    [Migration("20200410090523_InitialCreate")]
+    [Migration("20200415222428_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -120,9 +120,9 @@ namespace bcycle_backend.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<float>("Latitude");
+                    b.Property<double>("Latitude");
 
-                    b.Property<float>("Longitude");
+                    b.Property<double>("Longitude");
 
                     b.Property<DateTime>("TimeReached");
 
