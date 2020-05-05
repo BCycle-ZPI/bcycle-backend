@@ -34,7 +34,7 @@ namespace bcycle_backend.Controllers
             return new ResultContainer<IEnumerable<TripResponse>>(trips.Select(TripAsResponse));
         }
 
-        // GET /api/trips/{id}
+        // GET /api/trips/:id
         [HttpGet("{id:int}")]
         public async Task<ActionResult<ResultContainer<TripResponse>>> Get(int id)
         {
@@ -44,7 +44,7 @@ namespace bcycle_backend.Controllers
             return new ResultContainer<TripResponse>(TripAsResponse(trip));
         }
 
-        // GET /api/trips/{guid}
+        // GET /api/trips/:guid
         [HttpGet("{guid:guid}")]
         [AllowAnonymous]
         public async Task<ActionResult<ResultContainer<TripResponse>>> GetPublic(Guid guid)
@@ -64,7 +64,7 @@ namespace bcycle_backend.Controllers
             return new ResultContainer<int>(savedTrip.Id);
         }
 
-        // PUT /api/trips/{id}/photo
+        // PUT /api/trips/:id/photo
         [HttpPut("{id}/photo")]
         public async Task<ActionResult<ResultContainer<string>>> PutPhoto(int id)
         {
@@ -80,14 +80,14 @@ namespace bcycle_backend.Controllers
             return new ResultContainer<string>(photo.PhotoUrl);
         }
 
-        // DELETE /api/trips/{id}
+        // DELETE /api/trips/:id
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAsync(int id) =>
             await _tripService.RemoveAsync(id, User.GetId()) == null
                 ? (IActionResult)NotFound()
                 : Ok();
 
-        // POST /api/trips/{id}/share
+        // POST /api/trips/:id/share
         [HttpPost("{id}/share")]
         public async Task<ActionResult<ResultContainer<string>>> GetSharingUrl(int id)
         {
@@ -97,7 +97,7 @@ namespace bcycle_backend.Controllers
             return new ResultContainer<string>(sharingUrl);
         }
 
-        // DELETE /api/trips/{id}/share
+        // DELETE /api/trips/:id/share
         [HttpDelete("{id}/share")]
         public async Task<IActionResult> DeleteSharingUrl(int id) =>
             await _tripService.DisableSharingAsync(id, User.GetId()) == null
