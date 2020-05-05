@@ -93,6 +93,24 @@ namespace bcycle_backend.Services
             return trip;
         }
 
+        public async Task<List<GroupTrip>> FindAllUserTripsAsync(string userId)
+        {
+            var trips = await _trips
+                .Include(t => t.Participants)
+                .Include(t => t.Route)
+                .Where(t => t.HostId == userId || t.Participants.Exists(p => p.UserId == userId && p.Status == ParticipantStatus.Accepted))
+                .ToListAsync();
+
+            return trips.Select(trip =>
+            {
+                if (trip.HostId != userId)
+                {
+                    trip.Participants = trip.Participants.Where(p => p.Status == ParticipantStatus.Accepted).ToList();
+                }
+                return trip;
+            }).ToList();
+        }
+
         public async Task<GroupTrip> RemoveAsync(int tripId, string subjectId)
         {
             var trip = await _trips

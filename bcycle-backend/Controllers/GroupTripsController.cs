@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using bcycle_backend.Models;
 using bcycle_backend.Models.Requests;
@@ -21,6 +24,15 @@ namespace bcycle_backend.Controllers
         {
             _tripService = tripService;
             _userService = userService;
+        }
+
+        // GET /api/group-trips
+        [HttpGet]
+        public async Task<ActionResult<ResultContainer<List<GroupTripResponse>>>> GetAll() {
+            var rawTrips = await _tripService.FindAllUserTripsAsync(User.GetId());
+            var trips = rawTrips.Select(
+                async trip => await trip.AsResponseAsync(_userService.GetUserInfoAsync));
+            return new ResultContainer<List<GroupTripResponse>>((await Task.WhenAll(trips)).ToList());
         }
 
         // POST /api/group-trips
