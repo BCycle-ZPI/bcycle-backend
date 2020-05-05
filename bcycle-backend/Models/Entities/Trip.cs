@@ -20,16 +20,17 @@ namespace bcycle_backend.Models.Entities
         public List<TripPoint> Route { get; set; }
         public List<TripPhoto> Photos { get; set; }
 
-        // public string MapImageUrl { get; set; }
+        public string GetSharingUrl(string urlBase, string tripSharePrefix) =>
+            $"{urlBase}/{tripSharePrefix}/{SharingGuid}";
 
-        public TripResponse AsResponse() => new TripResponse
+        public TripResponse AsResponse(string urlBase, string tripSharePrefix) => new TripResponse
         {
             Id = Id,
             Distance = Distance,
             Time = Time,
             Started = Started,
             Finished = Finished,
-            SharingGuid = SharingGuid,
+            SharingUrl = GetSharingUrl(urlBase, tripSharePrefix),
             GroupTripId = GroupTripId,
             Route = Route,
             Photos = Photos.Select(p => p.PhotoUrl).ToList()

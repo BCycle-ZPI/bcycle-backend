@@ -7,6 +7,7 @@ using bcycle_backend.Data;
 using bcycle_backend.Models;
 using bcycle_backend.Models.Entities;
 using bcycle_backend.Models.Requests;
+using bcycle_backend.Models.Responses;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
@@ -100,10 +101,11 @@ namespace bcycle_backend.Services
         public async Task<string> EnableSharingAsync(string urlBase, int tripId, string userId)
         {
             var trip = await GetUserTripAsync(tripId, userId);
+            var tripSharePrefix = _configuration.GetValue<string>("TripSharePrefix");
             if (trip == null) return null;
             trip.SharingGuid = Guid.NewGuid();
             await _dbContext.SaveChangesAsync();
-            return urlBase + "/trips/" + trip.SharingGuid;
+            return trip.GetSharingUrl(urlBase, tripSharePrefix);
         }
 
         public async Task<Trip> DisableSharingAsync(int tripId, string userId)
@@ -113,6 +115,12 @@ namespace bcycle_backend.Services
             trip.SharingGuid = null;
             await _dbContext.SaveChangesAsync();
             return trip;
+        }
+
+        public TripResponse TripAsResponse(Trip trip, string urlBase)
+        {
+            var tripSharePrefix = _configuration.GetValue<string>("TripSharePrefix");
+            return trip.AsResponse(urlBase, tripSharePrefix);
         }
     }
 }

@@ -5,7 +5,9 @@ using System.Threading.Tasks;
 using bcycle_backend.Data;
 using bcycle_backend.Models.Entities;
 using bcycle_backend.Models.Requests;
+using bcycle_backend.Models.Responses;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 namespace bcycle_backend.Services
 {
@@ -15,12 +17,14 @@ namespace bcycle_backend.Services
 
         private readonly DbSet<GroupTrip> _trips;
         private readonly DbSet<GroupTripPoint> _points;
+        private readonly IConfiguration _configuration;
         private readonly BCycleContext _dbContext;
 
-        public GroupTripService(BCycleContext context)
+        public GroupTripService(IConfiguration configuration, BCycleContext context)
         {
             _trips = context.GroupTrips;
             _points = context.GroupTripPoints;
+            _configuration = configuration;
             _dbContext = context;
         }
 
@@ -221,7 +225,8 @@ namespace bcycle_backend.Services
             if (trip == null) return null;
             trip.SharingGuid = Guid.NewGuid();
             await _dbContext.SaveChangesAsync();
-            return urlBase + "/group-trips/" + trip.SharingGuid;
+            var groupTripSharePrefix = _configuration.GetValue<string>("GroupTripSharePrefix");
+            return trip.GetSharingUrl(urlBase, groupTripSharePrefix);
         }
 
         public async Task<GroupTrip> DisableSharingAsync(int tripId, string userId)
@@ -231,6 +236,12 @@ namespace bcycle_backend.Services
             trip.SharingGuid = null;
             await _dbContext.SaveChangesAsync();
             return trip;
+        }
+
+        public async Task<GroupTripResponse> TripAsResponseAsync(GroupTrip trip, Func<string, Task<UserInfo>> userProvider, string urlBase)
+        {
+            var groupTripSharePrefix = _configuration.GetValue<string>("GroupTripSharePrefix");
+            return await trip.AsResponseAsync(userProvider, urlBase, groupTripSharePrefix);
         }
     }
 }

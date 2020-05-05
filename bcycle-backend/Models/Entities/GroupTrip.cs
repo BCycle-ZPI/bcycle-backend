@@ -39,7 +39,10 @@ namespace bcycle_backend.Models.Entities
                 .Where(p => p.Status == status)
                 .FirstOrDefault(r => r.UserId == userId);
 
-        public async Task<GroupTripResponse> AsResponseAsync(Func<string, Task<UserInfo>> userProvider) =>
+        public string GetSharingUrl(string urlBase, string groupTripSharePrefix) =>
+            $"{urlBase}/{groupTripSharePrefix}/{SharingGuid}";
+
+        public async Task<GroupTripResponse> AsResponseAsync(Func<string, Task<UserInfo>> userProvider, string urlBase, string groupTripSharePrefix) =>
             new GroupTripResponse
             {
                 Id = Id,
@@ -49,7 +52,7 @@ namespace bcycle_backend.Models.Entities
                 TripCode = TripCode,
                 StartDate = StartDate,
                 EndDate = EndDate,
-                SharingGuid = SharingGuid,
+                SharingUrl = GetSharingUrl(urlBase, groupTripSharePrefix),
                 Route = Route,
                 Participants = Participants
                     .Select(p => p.AsResponseAsync(userProvider))

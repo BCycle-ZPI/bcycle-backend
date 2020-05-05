@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using bcycle_backend.Models;
+using bcycle_backend.Models.Entities;
 using bcycle_backend.Models.Requests;
 using bcycle_backend.Models.Responses;
 using bcycle_backend.Security;
@@ -29,8 +30,8 @@ namespace bcycle_backend.Controllers
         [HttpGet]
         public async Task<ActionResult<ResultContainer<IEnumerable<TripResponse>>>> Get()
         {
-            var trips = await _tripService.GetAll(User.GetId()).Select(t => t.AsResponse()).ToListAsync();
-            return new ResultContainer<IEnumerable<TripResponse>>(trips);
+            var trips = await _tripService.GetAll(User.GetId()).ToListAsync();
+            return new ResultContainer<IEnumerable<TripResponse>>(trips.Select(TripAsResponse));
         }
 
         // GET /api/trips/{id}
@@ -40,7 +41,7 @@ namespace bcycle_backend.Controllers
             var trip = await _tripService.GetUserTripAsync(id, User.GetId());
             if (trip == null) return NotFound();
 
-            return new ResultContainer<TripResponse>(trip.AsResponse());
+            return new ResultContainer<TripResponse>(TripAsResponse(trip));
         }
 
         // GET /api/trips/{guid}
@@ -51,7 +52,7 @@ namespace bcycle_backend.Controllers
             var trip = await _tripService.GetPublicTripAsync(guid);
             if (trip == null) return NotFound();
 
-            return new ResultContainer<TripResponse>(trip.AsResponse());
+            return new ResultContainer<TripResponse>(TripAsResponse(trip));
         }
 
 
@@ -102,6 +103,9 @@ namespace bcycle_backend.Controllers
             await _tripService.DisableSharingAsync(id, User.GetId()) == null
                 ? (IActionResult)NotFound()
                 : Ok();
+
+        public TripResponse TripAsResponse(Trip trip) =>
+            _tripService.TripAsResponse(trip, $"{Request.Scheme}://{Request.Host}");
 
     }
 }

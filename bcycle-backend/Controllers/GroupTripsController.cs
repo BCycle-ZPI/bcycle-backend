@@ -111,7 +111,7 @@ namespace bcycle_backend.Controllers
             return CreateResponse(result);
         }
 
-        // POST /api/group-trips/{id}/share
+        // POST /api/group-trips/:id/share
         [HttpPost("{id}/share")]
         public async Task<ActionResult<ResultContainer<string>>> GetSharingUrl(int id)
         {
@@ -121,7 +121,7 @@ namespace bcycle_backend.Controllers
             return new ResultContainer<string>(sharingUrl);
         }
 
-        // DELETE /api/group-trips/{id}/share
+        // DELETE /api/group-trips/:id/share
         [HttpDelete("{id}/share")]
         public async Task<IActionResult> DeleteSharingUrl(int id) =>
             CreateResponse(await _tripService.DisableSharingAsync(id, User.GetId()));
@@ -131,7 +131,7 @@ namespace bcycle_backend.Controllers
 
         private async Task<ActionResult<ResultContainer<GroupTripResponse>>> TransformTrip(GroupTrip trip) {
             if (trip == null) return NotFound();
-            var response = await trip.AsResponseAsync(_userService.GetUserInfoAsync);
+            var response = await _tripService.TripAsResponseAsync(trip, _userService.GetUserInfoAsync, $"{Request.Scheme}://{Request.Host}");
             return new ResultContainer<GroupTripResponse>(response);
         }
     }
