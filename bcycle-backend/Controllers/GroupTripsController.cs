@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using bcycle_backend.Models;
+using bcycle_backend.Models.Entities;
 using bcycle_backend.Models.Requests;
 using bcycle_backend.Models.Responses;
 using bcycle_backend.Security;
@@ -42,16 +43,22 @@ namespace bcycle_backend.Controllers
             var trip = await _tripService.CreateAsync(data, User.GetId());
             return new ResultContainer<int>(trip.Id);
         }
-        
+
         // GET /api/group-trips/:id
-        [HttpGet("{id}")]
+        [HttpGet("{id:int}")]
         public async Task<ActionResult<ResultContainer<GroupTripResponse>>> Get(int id)
         {
             var trip = await _tripService.FindAsync(id, User.GetId());
-            if (trip == null) return NotFound();
+            return await TransformTrip(trip);
+        }
 
-            var response = await trip.AsResponseAsync(_userService.GetUserInfoAsync);
-            return new ResultContainer<GroupTripResponse>(response);
+        // GET /api/group-trips/:guid
+        [AllowAnonymous]
+        [HttpGet("{guid:guid}")]
+        public async Task<ActionResult<ResultContainer<GroupTripResponse>>> Get(Guid guid)
+        {
+            var trip = await _tripService.FindPublicGroupTripAsync(guid);
+            return await TransformTrip(trip);
         }
 
         // PUT /api/group-trips/:id
@@ -104,7 +111,28 @@ namespace bcycle_backend.Controllers
             return CreateResponse(result);
         }
 
-        // We may choose better way for returning responses rather than simple null/non null if we need to 
+        // POST /api/group-trips/{id}/share
+        [HttpPost("{id}/share")]
+        public async Task<ActionResult<ResultContainer<string>>> GetSharingUrl(int id)
+        {
+            var sharingUrl = await _tripService.EnableSharingAsync($"{Request.Scheme}://{Request.Host}", id, User.GetId());
+            if (sharingUrl == null) return BadRequest();
+
+            return new ResultContainer<string>(sharingUrl);
+        }
+
+        // DELETE /api/group-trips/{id}/share
+        [HttpDelete("{id}/share")]
+        public async Task<IActionResult> DeleteSharingUrl(int id) =>
+            CreateResponse(await _tripService.DisableSharingAsync(id, User.GetId()));
+
+        // We may choose better way for returning responses rather than simple null/non null if we need to
         private IActionResult CreateResponse(object obj) => obj == null ? (IActionResult)NotFound() : Ok();
+
+        private async Task<ActionResult<ResultContainer<GroupTripResponse>>> TransformTrip(GroupTrip trip) {
+            if (trip == null) return NotFound();
+            var response = await trip.AsResponseAsync(_userService.GetUserInfoAsync);
+            return new ResultContainer<GroupTripResponse>(response);
+        }
     }
 }

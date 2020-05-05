@@ -13,7 +13,9 @@ namespace bcycle_backend.Models.Responses
         public string TripCode { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
+        public Guid? SharingGuid { get; set; }
         public List<GroupTripPoint> Route { get; set; }
         public List<ParticipantResponse> Participants { get; set; }
+        public List<string> Photos { get; set; }
     }
 }

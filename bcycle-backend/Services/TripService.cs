@@ -40,6 +40,13 @@ namespace bcycle_backend.Services
                 .Include(t => t.Route)
                 .FirstOrDefaultAsync();
 
+        public Task<Trip> GetPublicTripAsync(Guid guid) =>
+            _tripsDbSet
+                .Where(t => t.SharingGuid == guid)
+                .Include(t => t.Photos)
+                .Include(t => t.Route)
+                .FirstOrDefaultAsync();
+
         public async Task<Trip> SaveTripAsync(TripRequest data, string subjectId)
         {
             var trip = new Trip
@@ -68,7 +75,7 @@ namespace bcycle_backend.Services
             return trip;
         }
 
-        public async Task<TripPhoto> PutPhotoAsync(Stream photoData, String urlBase, int tripId, string userId)
+        public async Task<TripPhoto> PutPhotoAsync(Stream photoData, string urlBase, int tripId, string userId)
         {
             var trip = await GetUserTripAsync(tripId, userId);
             if (trip == null) return null;
@@ -88,6 +95,24 @@ namespace bcycle_backend.Services
             await _dbContext.SaveChangesAsync();
 
             return photo;
+        }
+
+        public async Task<string> EnableSharingAsync(string urlBase, int tripId, string userId)
+        {
+            var trip = await GetUserTripAsync(tripId, userId);
+            if (trip == null) return null;
+            trip.SharingGuid = Guid.NewGuid();
+            await _dbContext.SaveChangesAsync();
+            return urlBase + "/trips/" + trip.SharingGuid;
+        }
+
+        public async Task<Trip> DisableSharingAsync(int tripId, string userId)
+        {
+            var trip = await GetUserTripAsync(tripId, userId);
+            if (trip == null) return null;
+            trip.SharingGuid = null;
+            await _dbContext.SaveChangesAsync();
+            return trip;
         }
     }
 }

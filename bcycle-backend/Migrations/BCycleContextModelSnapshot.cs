@@ -29,6 +29,8 @@ namespace bcycle_backend.Migrations
 
                     b.Property<string>("Name");
 
+                    b.Property<Guid?>("SharingGuid");
+
                     b.Property<DateTime>("StartDate");
 
                     b.Property<string>("TripCode");
@@ -83,6 +85,8 @@ namespace bcycle_backend.Migrations
                     b.Property<DateTime>("Finished");
 
                     b.Property<int?>("GroupTripId");
+
+                    b.Property<Guid?>("SharingGuid");
 
                     b.Property<DateTime>("Started");
 
@@ -152,7 +156,7 @@ namespace bcycle_backend.Migrations
             modelBuilder.Entity("bcycle_backend.Models.Entities.Trip", b =>
                 {
                     b.HasOne("bcycle_backend.Models.Entities.GroupTrip", "GroupTrip")
-                        .WithMany()
+                        .WithMany("Trips")
                         .HasForeignKey("GroupTripId");
                 });
 

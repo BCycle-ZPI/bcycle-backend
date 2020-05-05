@@ -34,7 +34,7 @@ namespace bcycle_backend.Controllers
         }
 
         // GET /api/trips/{id}
-        [HttpGet("{id}")]
+        [HttpGet("{id:int}")]
         public async Task<ActionResult<ResultContainer<TripResponse>>> Get(int id)
         {
             var trip = await _tripService.GetUserTripAsync(id, User.GetId());
@@ -42,6 +42,18 @@ namespace bcycle_backend.Controllers
 
             return new ResultContainer<TripResponse>(trip.AsResponse());
         }
+
+        // GET /api/trips/{guid}
+        [HttpGet("{guid:guid}")]
+        [AllowAnonymous]
+        public async Task<ActionResult<ResultContainer<TripResponse>>> GetPublic(Guid guid)
+        {
+            var trip = await _tripService.GetPublicTripAsync(guid);
+            if (trip == null) return NotFound();
+
+            return new ResultContainer<TripResponse>(trip.AsResponse());
+        }
+
 
         // POST /api/trips
         [HttpPost]
@@ -73,5 +85,23 @@ namespace bcycle_backend.Controllers
             await _tripService.RemoveAsync(id, User.GetId()) == null
                 ? (IActionResult)NotFound()
                 : Ok();
+
+        // POST /api/trips/{id}/share
+        [HttpPost("{id}/share")]
+        public async Task<ActionResult<ResultContainer<string>>> GetSharingUrl(int id)
+        {
+            var sharingUrl = await _tripService.EnableSharingAsync($"{Request.Scheme}://{Request.Host}", id, User.GetId());
+            if (sharingUrl == null) return BadRequest();
+
+            return new ResultContainer<string>(sharingUrl);
+        }
+
+        // DELETE /api/trips/{id}/share
+        [HttpDelete("{id}/share")]
+        public async Task<IActionResult> DeleteSharingUrl(int id) =>
+            await _tripService.DisableSharingAsync(id, User.GetId()) == null
+                ? (IActionResult)NotFound()
+                : Ok();
+
     }
 }

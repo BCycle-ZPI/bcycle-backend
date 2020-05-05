@@ -12,6 +12,7 @@ namespace bcycle_backend.Models.Entities
         public int Time { get; set; }
         public DateTime Started { get; set; }
         public DateTime Finished { get; set; }
+        public Guid? SharingGuid { get; set; }
         public string UserId { get; set; }
         public int? GroupTripId { get; set; }
 
@@ -28,6 +29,7 @@ namespace bcycle_backend.Models.Entities
             Time = Time,
             Started = Started,
             Finished = Finished,
+            SharingGuid = SharingGuid,
             GroupTripId = GroupTripId,
             Route = Route,
             Photos = Photos.Select(p => p.PhotoUrl).ToList()
