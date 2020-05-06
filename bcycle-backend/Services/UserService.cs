@@ -15,7 +15,7 @@ namespace bcycle_backend.Services
             {
                 return new UserInfo(await _auth.GetUserAsync(id));
             }
-            catch (Exception ignored)
+            catch (Exception)
             {
                 return null;
             }
