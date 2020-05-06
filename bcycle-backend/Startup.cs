@@ -33,6 +33,7 @@ namespace bcycle_backend
 
             services.AddScoped<TripService>();
             services.AddScoped<GroupTripService>();
+            services.AddScoped<StatsService>();
             services.AddScoped<UserService>();
             services.AddSingleton<IAuthorizationHandler, AnonymousAuthorizationHandler>();
             services.AddSingleton(Configuration);
