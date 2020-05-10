@@ -32,7 +32,7 @@ namespace bcycle_backend.Controllers
         public async Task<ActionResult<ResultContainer<List<GroupTripResponse>>>> GetAll() {
             var rawTrips = await _tripService.FindAllUserTripsAsync(User.GetId());
             var trips = rawTrips.Select(
-                async trip => await trip.AsResponseAsync(_userService.GetUserInfoAsync));
+                async trip => await TripAsResponse(trip));
             return new ResultContainer<List<GroupTripResponse>>((await Task.WhenAll(trips)).ToList());
         }
 
@@ -129,9 +129,13 @@ namespace bcycle_backend.Controllers
         // We may choose better way for returning responses rather than simple null/non null if we need to
         private IActionResult CreateResponse(object obj) => obj == null ? (IActionResult)NotFound() : Ok();
 
+
+        private async Task<GroupTripResponse> TripAsResponse(GroupTrip trip) =>
+            await _tripService.TripAsResponseAsync(trip, _userService.GetUserInfoAsync, $"{Request.Scheme}://{Request.Host}");
+
         private async Task<ActionResult<ResultContainer<GroupTripResponse>>> TransformTrip(GroupTrip trip) {
             if (trip == null) return NotFound();
-            var response = await _tripService.TripAsResponseAsync(trip, _userService.GetUserInfoAsync, $"{Request.Scheme}://{Request.Host}");
+            var response = await TripAsResponse(trip);
             return new ResultContainer<GroupTripResponse>(response);
         }
     }
