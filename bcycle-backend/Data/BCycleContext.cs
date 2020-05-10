@@ -45,6 +45,12 @@ namespace bcycle_backend.Data
                 .WithOne(p => p.GroupTrip)
                 .HasForeignKey(p => p.GroupTripId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<GroupTrip>()
+                .HasMany(e => e.Trips)
+                .WithOne(t => t.GroupTrip)
+                .HasForeignKey(t => t.GroupTripId)
+                .OnDelete(DeleteBehavior.ClientSetNull);
         }
     }
 }

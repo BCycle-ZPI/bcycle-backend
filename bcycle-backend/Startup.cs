@@ -1,4 +1,5 @@
-﻿using bcycle_backend.Data;
+﻿using System.IO;
+using bcycle_backend.Data;
 using bcycle_backend.Security;
 using bcycle_backend.Services;
 using FirebaseAdmin;
@@ -11,6 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.FileProviders;
 using Newtonsoft.Json;
 using static bcycle_backend.Security.FirebaseAuthDefaults;
 
@@ -53,6 +55,10 @@ namespace bcycle_backend
                 .AddAuthentication(FirebaseAuthScheme)
                 .AddScheme<AuthenticationSchemeOptions, FirebaseAuthHandler>(FirebaseAuthScheme, null);
 
+            services.AddSpaStaticFiles(configuration =>
+                configuration.RootPath = "public"
+            );
+
             // TODO: switch to SQL Server in production?
             services.AddDbContext<BCycleContext>(options =>
                 options.UseSqlite(Configuration.GetConnectionString("DefaultConnection")));
@@ -65,7 +71,26 @@ namespace bcycle_backend
 
             app.UseAuthentication();
             // app.UseHttpsRedirection();
+
+            var uploadPath = Configuration.GetValue<string>("UploadPath");
+            var uploadFullPath = Path.GetFullPath(uploadPath);
+            Directory.CreateDirectory(uploadFullPath);
+
+
+            app.UseDefaultFiles();
+            app.UseStaticFiles(new StaticFileOptions
+            {
+                FileProvider = new PhysicalFileProvider(uploadFullPath),
+                RequestPath = "/uploads"
+            });
+            app.UseSpaStaticFiles();
             app.UseMvc();
+
+            app.MapWhen(x => !x.Request.Path.Value.StartsWith("/api") && !x.Request.Path.Value.StartsWith("/uploads"),
+                builder =>
+                {
+                    builder.UseSpa(spa => { });
+                });
         }
     }
 }

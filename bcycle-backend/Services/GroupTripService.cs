@@ -1,11 +1,13 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using bcycle_backend.Data;
 using bcycle_backend.Models.Entities;
 using bcycle_backend.Models.Requests;
+using bcycle_backend.Models.Responses;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 namespace bcycle_backend.Services
 {
@@ -15,12 +17,14 @@ namespace bcycle_backend.Services
 
         private readonly DbSet<GroupTrip> _trips;
         private readonly DbSet<GroupTripPoint> _points;
+        private readonly IConfiguration _configuration;
         private readonly BCycleContext _dbContext;
 
-        public GroupTripService(BCycleContext context)
+        public GroupTripService(IConfiguration configuration, BCycleContext context)
         {
             _trips = context.GroupTrips;
             _points = context.GroupTripPoints;
+            _configuration = configuration;
             _dbContext = context;
         }
 
@@ -43,7 +47,7 @@ namespace bcycle_backend.Services
             await _dbContext.SaveChangesAsync();
             return trip;
         }
-        
+
         private string GenerateCode()
         {
             string code;
@@ -51,7 +55,7 @@ namespace bcycle_backend.Services
             {
                 code = Guid.NewGuid().ToString().Substring(0, CodeLength);
             } while (_trips.Any(t => t.TripCode == code));
-            
+
             return code;
         }
 
@@ -81,6 +85,7 @@ namespace bcycle_backend.Services
                 .Where(t => t.Id == id)
                 .Include(t => t.Participants)
                 .Include(t => t.Route)
+                .Include(t => t.Trips)
                 .FirstOrDefaultAsync();
 
             if (trip == null) return null;
@@ -110,6 +115,15 @@ namespace bcycle_backend.Services
                 return trip;
             }).ToList();
         }
+
+        public async Task<GroupTrip> FindPublicGroupTripAsync(Guid guid) =>
+            await _trips
+                .Where(t => t.SharingGuid == guid)
+                .Include(t => t.Participants)
+                .Include(t => t.Route)
+                .Include(t => t.Trips)
+                .ThenInclude(trip => trip.Photos)
+                .FirstOrDefaultAsync();
 
         public async Task<GroupTrip> RemoveAsync(int tripId, string subjectId)
         {
@@ -194,5 +208,40 @@ namespace bcycle_backend.Services
                 .Include(t => t.Participants)
                 .Include(t => t.Route)
                 .FirstOrDefaultAsync();
+
+        public async Task<GroupTrip> FindHostedAsync(int id, string hostId) =>
+            await _trips
+                .Where(t => t.Id == id)
+                .Where(t => t.HostId == hostId)
+                .Include(t => t.Participants)
+                .Include(t => t.Route)
+                .Include(t => t.Trips)
+                .ThenInclude(trip => trip.Photos)
+                .FirstOrDefaultAsync();
+
+        public async Task<string> EnableSharingAsync(string urlBase, int tripId, string userId)
+        {
+            var trip = await FindHostedAsync(tripId, userId);
+            if (trip == null) return null;
+            trip.SharingGuid = Guid.NewGuid();
+            await _dbContext.SaveChangesAsync();
+            var groupTripSharePrefix = _configuration.GetValue<string>("GroupTripSharePrefix");
+            return trip.GetSharingUrl(urlBase, groupTripSharePrefix);
+        }
+
+        public async Task<GroupTrip> DisableSharingAsync(int tripId, string userId)
+        {
+            var trip = await FindHostedAsync(tripId, userId);
+            if (trip == null) return null;
+            trip.SharingGuid = null;
+            await _dbContext.SaveChangesAsync();
+            return trip;
+        }
+
+        public async Task<GroupTripResponse> TripAsResponseAsync(GroupTrip trip, Func<string, Task<UserInfo>> userProvider, string urlBase)
+        {
+            var groupTripSharePrefix = _configuration.GetValue<string>("GroupTripSharePrefix");
+            return await trip.AsResponseAsync(userProvider, urlBase, groupTripSharePrefix);
+        }
     }
 }

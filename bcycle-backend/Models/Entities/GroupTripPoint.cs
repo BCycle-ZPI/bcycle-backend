@@ -9,7 +9,7 @@ namespace bcycle_backend.Models.Entities
         public double Longitude { get; set; }
         public double Latitude { get; set; }
         public int Ordinal { get; set; }
-        
+
         [JsonIgnore] public GroupTrip GroupTrip { get; set; }
     }
 }

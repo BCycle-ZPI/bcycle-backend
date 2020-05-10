@@ -18,7 +18,8 @@ namespace bcycle_backend.Migrations
                     HostId = table.Column<string>(nullable: true),
                     TripCode = table.Column<string>(nullable: true),
                     StartDate = table.Column<DateTime>(nullable: false),
-                    EndDate = table.Column<DateTime>(nullable: false)
+                    EndDate = table.Column<DateTime>(nullable: false),
+                    SharingGuid = table.Column<Guid>(nullable: true)
                 },
                 constraints: table =>
                 {
@@ -76,6 +77,7 @@ namespace bcycle_backend.Migrations
                     Time = table.Column<int>(nullable: false),
                     Started = table.Column<DateTime>(nullable: false),
                     Finished = table.Column<DateTime>(nullable: false),
+                    SharingGuid = table.Column<Guid>(nullable: true),
                     UserId = table.Column<string>(nullable: true),
                     GroupTripId = table.Column<int>(nullable: true)
                 },

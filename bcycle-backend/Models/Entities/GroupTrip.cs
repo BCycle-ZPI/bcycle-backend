@@ -16,8 +16,10 @@ namespace bcycle_backend.Models.Entities
         public string TripCode { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
+        public Guid? SharingGuid { get; set; }
         public List<GroupTripPoint> Route { get; set; }
         public List<GroupTripParticipant> Participants { get; set; }
+        public List<Trip> Trips { get; set; }
 
         public void Update(GroupTripRequest data)
         {
@@ -37,7 +39,10 @@ namespace bcycle_backend.Models.Entities
                 .Where(p => p.Status == status)
                 .FirstOrDefault(r => r.UserId == userId);
 
-        public async Task<GroupTripResponse> AsResponseAsync(Func<string, Task<UserInfo>> userProvider) =>
+        public string GetSharingUrl(string urlBase, string groupTripSharePrefix) =>
+            $"{urlBase}/{groupTripSharePrefix}/{SharingGuid}";
+
+        public async Task<GroupTripResponse> AsResponseAsync(Func<string, Task<UserInfo>> userProvider, string urlBase, string groupTripSharePrefix) =>
             new GroupTripResponse
             {
                 Id = Id,
@@ -47,11 +52,15 @@ namespace bcycle_backend.Models.Entities
                 TripCode = TripCode,
                 StartDate = StartDate,
                 EndDate = EndDate,
+                SharingUrl = GetSharingUrl(urlBase, groupTripSharePrefix),
                 Route = Route,
                 Participants = Participants
                     .Select(p => p.AsResponseAsync(userProvider))
                     .Select(t => t.Result)
-                    .ToList()
+                    .ToList(),
+                Photos = Trips == null ? new List<string>() : Trips.SelectMany(
+                    t => t.Photos.Select(p => p.PhotoUrl)
+                ).ToList()
             };
     }
 }
