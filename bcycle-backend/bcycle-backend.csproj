@@ -21,4 +21,10 @@
     <Folder Include="Migrations" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="public\**\*.*">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

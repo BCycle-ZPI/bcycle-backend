@@ -7,7 +7,7 @@ namespace bcycle_backend.Data
     {
         public BCycleContext(DbContextOptions options) : base(options)
         {
-            Database.EnsureCreated();
+            Database.Migrate();
         }
 
         public DbSet<GroupTrip> GroupTrips { get; set; }
