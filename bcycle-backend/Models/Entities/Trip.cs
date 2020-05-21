@@ -21,7 +21,7 @@ namespace bcycle_backend.Models.Entities
         public List<TripPhoto> Photos { get; set; }
 
         public string GetSharingUrl(string urlBase, string tripSharePrefix) =>
-            $"{urlBase}/{tripSharePrefix}/{SharingGuid}";
+            SharingGuid == null ? null : $"{urlBase}/{tripSharePrefix}/{SharingGuid}";
 
         public TripResponse AsResponse(string urlBase, string tripSharePrefix) => new TripResponse
         {

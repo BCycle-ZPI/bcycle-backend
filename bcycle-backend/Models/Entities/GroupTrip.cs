@@ -40,7 +40,7 @@ namespace bcycle_backend.Models.Entities
                 .FirstOrDefault(r => r.UserId == userId);
 
         public string GetSharingUrl(string urlBase, string groupTripSharePrefix) =>
-            $"{urlBase}/{groupTripSharePrefix}/{SharingGuid}";
+            SharingGuid == null ? null : $"{urlBase}/{groupTripSharePrefix}/{SharingGuid}";
 
         public async Task<GroupTripResponse> AsResponseAsync(Func<string, Task<UserInfo>> userProvider, string urlBase, string groupTripSharePrefix) =>
             new GroupTripResponse
