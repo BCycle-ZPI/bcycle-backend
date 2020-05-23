@@ -86,6 +86,7 @@ namespace bcycle_backend.Services
                 .Include(t => t.Participants)
                 .Include(t => t.Route)
                 .Include(t => t.Trips)
+                .ThenInclude(t => t.Photos)
                 .FirstOrDefaultAsync();
 
             if (trip == null) return null;
@@ -103,7 +104,8 @@ namespace bcycle_backend.Services
             var trips = await _trips
                 .Include(t => t.Participants)
                 .Include(t => t.Route)
-                .Where(t => t.HostId == userId || t.Participants.Exists(p => p.UserId == userId && p.Status == ParticipantStatus.Accepted))
+                .Where(t => t.HostId == userId ||
+                            t.Participants.Exists(p => p.UserId == userId && p.Status == ParticipantStatus.Accepted))
                 .ToListAsync();
 
             return trips.Select(trip =>
@@ -112,18 +114,10 @@ namespace bcycle_backend.Services
                 {
                     trip.Participants = trip.Participants.Where(p => p.Status == ParticipantStatus.Accepted).ToList();
                 }
+
                 return trip;
             }).ToList();
         }
-
-        public async Task<GroupTrip> FindPublicGroupTripAsync(Guid guid) =>
-            await _trips
-                .Where(t => t.SharingGuid == guid)
-                .Include(t => t.Participants)
-                .Include(t => t.Route)
-                .Include(t => t.Trips)
-                .ThenInclude(trip => trip.Photos)
-                .FirstOrDefaultAsync();
 
         public async Task<GroupTrip> RemoveAsync(int tripId, string subjectId)
         {
@@ -208,40 +202,5 @@ namespace bcycle_backend.Services
                 .Include(t => t.Participants)
                 .Include(t => t.Route)
                 .FirstOrDefaultAsync();
-
-        public async Task<GroupTrip> FindHostedAsync(int id, string hostId) =>
-            await _trips
-                .Where(t => t.Id == id)
-                .Where(t => t.HostId == hostId)
-                .Include(t => t.Participants)
-                .Include(t => t.Route)
-                .Include(t => t.Trips)
-                .ThenInclude(trip => trip.Photos)
-                .FirstOrDefaultAsync();
-
-        public async Task<string> EnableSharingAsync(string urlBase, int tripId, string userId)
-        {
-            var trip = await FindHostedAsync(tripId, userId);
-            if (trip == null) return null;
-            trip.SharingGuid = Guid.NewGuid();
-            await _dbContext.SaveChangesAsync();
-            var groupTripSharePrefix = _configuration.GetValue<string>("GroupTripSharePrefix");
-            return trip.GetSharingUrl(urlBase, groupTripSharePrefix);
-        }
-
-        public async Task<GroupTrip> DisableSharingAsync(int tripId, string userId)
-        {
-            var trip = await FindHostedAsync(tripId, userId);
-            if (trip == null) return null;
-            trip.SharingGuid = null;
-            await _dbContext.SaveChangesAsync();
-            return trip;
-        }
-
-        public async Task<GroupTripResponse> TripAsResponseAsync(GroupTrip trip, Func<string, Task<UserInfo>> userProvider, string urlBase)
-        {
-            var groupTripSharePrefix = _configuration.GetValue<string>("GroupTripSharePrefix");
-            return await trip.AsResponseAsync(userProvider, urlBase, groupTripSharePrefix);
-        }
     }
 }
