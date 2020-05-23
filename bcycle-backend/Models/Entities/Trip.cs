@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using bcycle_backend.Models.Responses;
+using static bcycle_backend.ProjectConstants;
 
 namespace bcycle_backend.Models.Entities
 {
@@ -20,20 +21,23 @@ namespace bcycle_backend.Models.Entities
         public List<TripPoint> Route { get; set; }
         public List<TripPhoto> Photos { get; set; }
 
-        public string GetSharingUrl(string urlBase, string tripSharePrefix) =>
-            SharingGuid == null ? null : $"{urlBase}/{tripSharePrefix}/{SharingGuid}";
-
-        public TripResponse AsResponse(string urlBase, string tripSharePrefix) => new TripResponse
+        public TripResponse AsResponse(string urlBase) => new TripResponse
         {
             Id = Id,
             Distance = Distance,
             Time = Time,
             Started = Started,
             Finished = Finished,
-            SharingUrl = GetSharingUrl(urlBase, tripSharePrefix),
+            SharingUrl = GetSharingUrl(urlBase),
             GroupTripId = GroupTripId,
             Route = Route,
             Photos = Photos.Select(p => p.PhotoUrl).ToList()
         };
+
+        public string GetSharingUrl(string urlBase)
+        {
+            var tripTypeSegment = GroupTripId == null ? PrivateTripShareSegment : GroupTripShareSegment;
+            return SharingGuid == null ? null : $"{urlBase}/{tripTypeSegment}/{SharingGuid}";
+        }
     }
 }

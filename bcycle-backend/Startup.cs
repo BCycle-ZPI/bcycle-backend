@@ -14,6 +14,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Newtonsoft.Json;
+using static bcycle_backend.ProjectConstants;
 using static bcycle_backend.Security.FirebaseAuthDefaults;
 
 namespace bcycle_backend
@@ -37,6 +38,7 @@ namespace bcycle_backend
             services.AddScoped<GroupTripService>();
             services.AddScoped<StatsService>();
             services.AddScoped<UserService>();
+            services.AddScoped<ShareService>();
             services.AddSingleton<IAuthorizationHandler, AnonymousAuthorizationHandler>();
             services.AddSingleton(Configuration);
 
@@ -80,13 +82,14 @@ namespace bcycle_backend
             app.UseDefaultFiles();
             app.UseStaticFiles(new StaticFileOptions
             {
-                FileProvider = new PhysicalFileProvider(uploadFullPath),
-                RequestPath = "/uploads"
+                FileProvider = new PhysicalFileProvider(uploadFullPath), RequestPath = $"/{UploadsDirectory}"
             });
             app.UseSpaStaticFiles();
             app.UseMvc();
 
-            app.MapWhen(x => !x.Request.Path.Value.StartsWith("/api") && !x.Request.Path.Value.StartsWith("/uploads"),
+            app.MapWhen(
+                x => !x.Request.Path.Value.StartsWith("/api") &&
+                     !x.Request.Path.Value.StartsWith($"/{UploadsDirectory}"),
                 builder =>
                 {
                     builder.UseSpa(spa => { });
