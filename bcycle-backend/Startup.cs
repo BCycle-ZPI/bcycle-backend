@@ -74,8 +74,7 @@ namespace bcycle_backend
             app.UseAuthentication();
             // app.UseHttpsRedirection();
 
-            var uploadPath = Configuration.GetValue<string>("UploadPath");
-            var uploadFullPath = Path.GetFullPath(uploadPath);
+            var uploadFullPath = Path.GetFullPath(UploadsDirectory);
             Directory.CreateDirectory(uploadFullPath);
 
 
