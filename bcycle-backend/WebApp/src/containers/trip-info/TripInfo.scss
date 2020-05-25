@@ -1,0 +1,42 @@
+#wrapper {
+  $column-padding:  0 1rem;
+
+  padding: 2.5rem 4rem 0 4rem;
+  height: 90vh !important;
+
+  #map-wrapper {
+    flex-grow: 5;
+    padding: $column-padding;
+
+    #map-image {
+      height: inherit;
+      max-width: 100%;
+      object-fit: cover;
+    }
+  }
+
+  #info-wrapper {
+    $scroll-oversize: 0.2rem;
+
+    flex-grow: 4;
+    padding: $column-padding;
+    margin-bottom: -$scroll-oversize;
+    display: flex;
+    flex-direction: column;
+
+    .section {
+      padding: 1.5rem 2rem 2.5rem 2rem;
+      margin: 0 1.2rem 1.5rem 1.2rem;
+
+      .section-header {
+        font-size: 1.75rem !important;
+        letter-spacing: 0.06rem !important;
+        margin-bottom: 1.8rem;
+      }
+    }
+
+    .section-last {
+      margin-bottom: $scroll-oversize !important;
+    }
+  }
+}

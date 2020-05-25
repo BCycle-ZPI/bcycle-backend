@@ -8,7 +8,9 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -64,6 +66,8 @@ namespace bcycle_backend
             // TODO: switch to SQL Server in production?
             services.AddDbContext<BCycleContext>(options =>
                 options.UseSqlite(Configuration.GetConnectionString("DefaultConnection")));
+
+            services.AddSpaStaticFiles(configuration => { configuration.RootPath = "WebApp/build"; });
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
@@ -87,12 +91,19 @@ namespace bcycle_backend
             app.UseMvc();
 
             app.MapWhen(
-                x => !x.Request.Path.Value.StartsWith("/api") &&
-                     !x.Request.Path.Value.StartsWith($"/{UploadsDirectory}"),
+                p => IsNotReserved(p.Request.Path),
                 builder =>
                 {
-                    builder.UseSpa(spa => { });
-                });
+                    builder.UseSpa(spa =>
+                    {
+                        spa.Options.SourcePath = "WebApp";
+                        if (env.IsDevelopment()) spa.UseReactDevelopmentServer(npmScript: "start");
+                    });
+                }
+            );
         }
+
+        private bool IsNotReserved(PathString path) =>
+            !path.Value.StartsWith("/api") && !path.Value.StartsWith($"/{UploadsDirectory}");
     }
 }
