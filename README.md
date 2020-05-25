@@ -1,7 +1,13 @@
 Backend for BCycle
 ==================
 
-.NET Core SDK 2.2.6 is required to build and run the app.
+
+Requirements
+------------
+
+- .NET Core SDK 2.2.6
+- Node.js 12+
+- npm 6+
 
 Creating the database
 ---------------------

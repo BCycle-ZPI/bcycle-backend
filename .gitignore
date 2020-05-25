@@ -259,9 +259,10 @@ paket-files/
 # FAKE - F# Make
 .fake/
 
-# JetBrains Rider
-.idea/
-*.sln.iml
+# JetBrains
+**/.idea
+**/*.iml
+
 
 # CodeRush
 .cr/
