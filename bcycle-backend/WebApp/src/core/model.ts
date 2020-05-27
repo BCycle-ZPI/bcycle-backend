@@ -2,7 +2,7 @@ export interface PrivateTrip {
     subject: Person;
     measures: Measures
     photosUrls: string[];
-    path: PathPoint[];
+    route: RoutePoint[];
 }
 
 export interface GroupTrip {
@@ -11,7 +11,7 @@ export interface GroupTrip {
     measures: Measures
     participants: Person[];
     photosUrls: string[];
-    path: PathPoint[];
+    route: RoutePoint[];
 }
 
 export interface Measures {
@@ -27,8 +27,9 @@ export interface Person {
     fullName: string
     avatarUrl: string
 }
-export interface PathPoint {
-    timeReached: Date;
+
+export interface RoutePoint {
+    timeReached: string;
     latitude: number;
     longitude: number;
 }
