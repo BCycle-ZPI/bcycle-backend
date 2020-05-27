@@ -18,14 +18,14 @@ export default function GroupTripInfo() {
   const [state, setState] = useState<GroupTripInfoState>();
   useEffect(() => {
     getParentGroupTrip(shareId).then((parentGroupTrip) => setState({ parentGroupTrip }));
-  }, []);
+  }, [shareId]);
 
   if (!state) return <Loading />;
   const tripInfo = state.parentGroupTrip;
   if (!tripInfo) return <NotFound />;
 
   return (
-    <TripInfo photosUrls={tripInfo.photosUrls}>
+    <TripInfo photosUrls={tripInfo.photosUrls} route={tripInfo.route}>
       <Grid item>
         <TripDetails tripName={tripInfo.tripName} subject={tripInfo.subject} measures={tripInfo.measures} />
       </Grid>

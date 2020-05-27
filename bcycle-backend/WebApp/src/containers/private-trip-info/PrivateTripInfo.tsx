@@ -13,19 +13,19 @@ interface PrivateTripInfoState {
 }
 
 export default function PrivateTripInfo() {
-  const { shareId: shareId } = useParams();
+  const { shareId } = useParams();
   const [state, setState] = useState<PrivateTripInfoState>();
 
   useEffect(() => {
     getPrivateTrip(shareId).then((trip) => setState({ trip }));
-  }, []);
+  }, [shareId]);
 
   if (!state) return <Loading />;
   const tripInfo = state.trip;
   if (!tripInfo) return <NotFound />;
 
   return (
-    <TripInfo photosUrls={tripInfo.photosUrls}>
+    <TripInfo photosUrls={tripInfo.photosUrls} route={tripInfo.route}>
       <Grid item>
         <TripDetails
           tripName={`Trip ${parseTripDate(tripInfo.measures.started)}`}
