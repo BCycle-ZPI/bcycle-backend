@@ -2,6 +2,7 @@
 using bcycle_backend.Data;
 using bcycle_backend.Security;
 using bcycle_backend.Services;
+using Firebase.Storage;
 using FirebaseAdmin;
 using Google.Apis.Auth.OAuth2;
 using Microsoft.AspNetCore.Authentication;
@@ -41,6 +42,7 @@ namespace bcycle_backend
             services.AddScoped<StatsService>();
             services.AddScoped<UserService>();
             services.AddScoped<ShareService>();
+            services.AddSingleton(new FirebaseStorage(FirebaseStorageBucket));
             services.AddSingleton<IAuthorizationHandler, AnonymousAuthorizationHandler>();
             services.AddSingleton(Configuration);
 

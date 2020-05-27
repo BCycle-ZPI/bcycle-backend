@@ -23,13 +23,13 @@ export default function TripDetails(props: TripHeaderProps) {
   const parseMinutes = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);
     const secondsRest = seconds - minutes * 60;
-    return `${formatDoubleDigit(minutes)}:${formatDoubleDigit(secondsRest)}`;
+    return `${formatDoubleDigit(minutes)}:${formatDoubleDigit(Math.round(secondsRest))}`;
   };
   const parseHours = (seconds: number) => {
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds - hours * 3600) / 60);
     const secondsRest = seconds - minutes * 60 - hours * 60;
-    return `${formatDoubleDigit(hours)}:${formatDoubleDigit(minutes)}:${formatDoubleDigit(secondsRest)}`;
+    return `${formatDoubleDigit(hours)}:${formatDoubleDigit(minutes)}:${formatDoubleDigit(Math.round(secondsRest))}`;
   };
 
   const parseDateString = (dateString: string) => {
@@ -50,13 +50,13 @@ export default function TripDetails(props: TripHeaderProps) {
         </Grid>
         <Grid id="trip-measures" container item justify="space-between">
           <Grid className="measure-column" item container xs={6} spacing={2}>
-            <TripMeasure name={'Distance'} value={`${props.measures.distance} km`} />
+            <TripMeasure name={'Distance'} value={`${props.measures.distance.toFixed(2)} km`} />
             <TripMeasure name={'Pace'} value={`${parseMinutes(props.measures.pace)}`} />
             <TripMeasure name={'Started'} value={parseDateString(measures.started)} />
           </Grid>
           <Grid className="measure-column" item container xs={6} spacing={2}>
             <TripMeasure name={'Time'} value={parseHours(props.measures.time)} />
-            <TripMeasure name={'Avg. speed '} value={`${props.measures.avgSpeed} km/h`} />
+            <TripMeasure name={'Avg. speed '} value={`${props.measures.avgSpeed.toFixed(2)} km/h`} />
             <TripMeasure name={'Finished'} value={parseDateString(measures.finished)} />
           </Grid>
         </Grid>

@@ -2,19 +2,8 @@
 {
     public class Person
     {
-        public string FullName { get; }
-        public string AvatarUrl { get; }
+        public string FullName { get; set; }
 
-        public Person(UserInfo userInfo)
-        {
-            FullName = userInfo.DisplayName;
-            AvatarUrl = userInfo.PhotoUrl;
-        }
-
-        public Person(string fullName)
-        {
-            FullName = fullName;
-            AvatarUrl = string.Empty;
-        }
+        public string AvatarUrl { get; set; }
     }
 }

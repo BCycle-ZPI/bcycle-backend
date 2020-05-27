@@ -1,5 +1,7 @@
 ﻿bcycle-backend/bcycle.sqlite3
 bcycle-backend/bcycle-credentials.json
+bcycle-backend/uploads/*
+!bcycle-backend/uploads/index.html
 # Created by https://www.gitignore.io/api/aspnetcore,visualstudio,visualstudiocode
 # Edit at https://www.gitignore.io/?templates=aspnetcore,visualstudio,visualstudiocode
 

@@ -1,3 +1,9 @@
 .person-name {
   font-size: 1.2rem !important;
 }
+
+.avatar{
+  $avatar-diameter: 2.8rem;
+  height: $avatar-diameter !important;
+  width: $avatar-diameter !important;
+}

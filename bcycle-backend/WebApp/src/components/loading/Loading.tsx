@@ -1,11 +1,10 @@
-import { CircularProgress, Grid, LinearProgress, Typography } from "@material-ui/core";
-import React from "react";
-import './Loading.scss';
+import { Grid, LinearProgress } from '@material-ui/core';
+import React from 'react';
 
 const Loading = () => (
-  <Grid id='loading-wrapper' container>
+  <Grid id="loading-wrapper" container>
     <Grid item xs>
-      <LinearProgress variant='query' color='secondary'/>
+      <LinearProgress variant="query" color="secondary" />
     </Grid>
   </Grid>
 );

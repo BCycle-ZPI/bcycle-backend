@@ -52,7 +52,7 @@ namespace bcycle_backend.Controllers
             return new ResultContainer<string>(trip.GetSharingUrl(Request.GetBaseUrl()));
         }
 
-        // DELETE  /api/share/:tripId
+        // DELETE /api/share/:tripId
         [Authorize]
         [HttpDelete("{tripId}")]
         public async Task<IActionResult> DeleteSharingUrl(int tripId) =>

@@ -1,23 +1,23 @@
-import { Grid } from "@material-ui/core";
-import React, { useEffect, useState } from "react";
-import TripDetails from "../../components/trip-details/TripDetails";
-import TripParticipants from "../../components/trip-participants/TripParticipants";
-import { GroupTrip } from "../../core/model";
-import { getParentGroupTrip } from "../../core/trips-client";
-import { useParams } from "react-router";
-import NotFound from "../../components/not-found/NotFound";
-import Loading from "../../components/loading/Loading";
-import TripInfo from "../trip-info/TripInfo";
+import { Grid } from '@material-ui/core';
+import React, { useEffect, useState } from 'react';
+import TripDetails from '../../components/trip-details/TripDetails';
+import TripParticipants from '../../components/trip-participants/TripParticipants';
+import { GroupTrip } from '../../core/model';
+import { getParentGroupTrip } from '../../core/trips-client';
+import { useParams } from 'react-router';
+import NotFound from '../../components/not-found/NotFound';
+import Loading from '../../components/loading/Loading';
+import TripInfo from '../trip-info/TripInfo';
 
 interface GroupTripInfoState {
   parentGroupTrip: GroupTrip | undefined;
 }
 
 export default function GroupTripInfo() {
-  const { childTripId } = useParams();
+  const { shareId } = useParams();
   const [state, setState] = useState<GroupTripInfoState>();
   useEffect(() => {
-    setState({ parentGroupTrip: getParentGroupTrip(+childTripId) });
+    getParentGroupTrip(shareId).then((parentGroupTrip) => setState({ parentGroupTrip }));
   }, []);
 
   if (!state) return <Loading />;
