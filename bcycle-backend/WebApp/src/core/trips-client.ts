@@ -1,14 +1,16 @@
 import { GroupTrip, PrivateTrip } from './model';
-import { groupTrip, privateTrip } from './dummy-data';
 
-// TODO: connect to backend
 
-export function getParentGroupTrip(childTripId: number): GroupTrip | undefined {
-  if (childTripId === 1) return groupTrip;
-  else return undefined;
+export function getPrivateTrip(shareId: string): Promise<PrivateTrip | undefined> {
+  return requestData('trip', shareId);
 }
 
-export function getPrivateTrip(tripId: number): PrivateTrip | undefined {
-  if (tripId === 1) return privateTrip;
-  else return undefined;
+export function getParentGroupTrip(shareId: string): Promise<GroupTrip | undefined> {
+  return requestData('group-trip', shareId);
+}
+
+function requestData(subPath: string, shareId: string) {
+  return fetch(`${process.env.REACT_APP_API_URL}/share/${subPath}/${shareId}`).then((r) =>
+    r.status === 200 ? r.json().then((j) => j.result) : undefined
+  );
 }

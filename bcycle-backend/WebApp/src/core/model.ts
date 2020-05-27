@@ -28,7 +28,7 @@ export interface Person {
     avatarUrl: string
 }
 export interface PathPoint {
-    order: number;
+    timeReached: Date;
     latitude: number;
     longitude: number;
 }

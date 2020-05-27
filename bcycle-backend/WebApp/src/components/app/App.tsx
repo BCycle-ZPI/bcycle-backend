@@ -19,10 +19,10 @@ export default function App() {
       </AppBar>
       <BrowserRouter>
         <Switch>
-          <Route path={'/group-trip/:childTripId'}>
+          <Route path={'/group-trip/:shareId'}>
             <GroupTripInfo />
           </Route>
-          <Route path={'/trip/:tripId'}>
+          <Route path={'/trip/:shareId'}>
             <PrivateTripInfo />
           </Route>
           <Route>

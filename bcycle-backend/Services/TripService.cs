@@ -95,7 +95,7 @@ namespace bcycle_backend.Services
                 .Where(t => t.SharingGuid == sharingId)
                 .Include(t => t.Photos)
                 .Include(t => t.Route)
-                .Include(t => t.GroupTrip).ThenInclude(gt => gt.Trips)
+                .Include(t => t.GroupTrip).ThenInclude(gt => gt.Trips).ThenInclude(t => t.Photos)
                 .Include(t => t.GroupTrip).ThenInclude(gt => gt.Participants)
                 .FirstOrDefaultAsync();
 
