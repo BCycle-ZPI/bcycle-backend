@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 using bcycle_backend.Models.Responses;
 
@@ -7,6 +8,8 @@ namespace bcycle_backend.Models.Entities
     public class GroupTripParticipant
     {
         public int GroupTripId { get; set; }
+        [Required]
+        [MaxLength(255)]
         public string UserId { get; set; }
         public ParticipantStatus Status { get; set; }
         public GroupTrip GroupTrip { get; set; }

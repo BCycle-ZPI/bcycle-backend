@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using bcycle_backend.Models.Responses;
 using static bcycle_backend.ProjectConstants;
@@ -14,6 +15,8 @@ namespace bcycle_backend.Models.Entities
         public DateTime Started { get; set; }
         public DateTime Finished { get; set; }
         public Guid? SharingGuid { get; set; }
+        [Required]
+        [MaxLength(255)]
         public string UserId { get; set; }
         public int? GroupTripId { get; set; }
 
